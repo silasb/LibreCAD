@@ -36,6 +36,7 @@
 #include "qc_applicationwindow.h"
 #include "qg_actionhandler.h"
 #include "rs_settings.h"
+#include "rs_commands.h"
 
 
 LC_ActionFactory::LC_ActionFactory(QC_ApplicationWindow* parent, QG_ActionHandler* a_handler)
@@ -1396,6 +1397,55 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
             main_window, SLOT(invokeToolbarCreator()));
     action->setObjectName("InvokeToolbarCreator");
     a_map["InvokeToolbarCreator"] = action;
+
+    // Ensure every action has `data()` set so other code can rely on it.
+    for (auto it = a_map.begin(); it != a_map.end(); ++it) {
+        QAction* a = it.value();
+        if (!a) continue;
+        QVariant d = a->data();
+        if (d.isValid() && !d.toString().trimmed().isEmpty()) continue;
+
+        // Try to determine ActionType from a previously-set property or from objectName
+        RS2::ActionType at = RS2::ActionNone;
+        if (a->property("actionType").isValid()) {
+            at = static_cast<RS2::ActionType>(a->property("actionType").toInt());
+        } else {
+            QString on = a->objectName();
+            if (!on.isEmpty()) {
+                // try whole name
+                at = RS_COMMANDS->cmdToAction(on.toLower(), false);
+                if (at == RS2::ActionNone) {
+                    // try last camel-case token
+                    QString accum;
+                    QStringList words;
+                    for (int i = 0; i < on.length(); ++i) {
+                        QChar c = on.at(i);
+                        if (i>0 && c.isUpper()) {
+                            if (!accum.isEmpty()) words << accum;
+                            accum.clear();
+                        }
+                        accum.append(c.toLower());
+                    }
+                    if (!accum.isEmpty()) words << accum;
+                    if (!words.isEmpty()) {
+                        at = RS_COMMANDS->cmdToAction(words.last(), false);
+                    }
+                }
+            }
+        }
+
+        if (at != RS2::ActionNone) {
+            QStringList aliases = RS_COMMANDS->aliasesForAction(at);
+            if (!aliases.isEmpty()) {
+                a->setData(aliases.join(", ")); // e.g. "line, ln"
+                continue;
+            }
+        }
+
+        // Fallback: use objectName lowercased as the data token
+        QString on = a->objectName();
+        if (!on.isEmpty()) a->setData(on.toLower());
+    }
 
     commonActions(a_map, agm);
 }

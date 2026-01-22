@@ -378,6 +378,7 @@ QC_ApplicationWindow::QC_ApplicationWindow()
     //emit windowsChanged(false);
 
     RS_COMMANDS->updateAlias();
+    refreshMenuAliases();
     //plugin load
     loadPlugins();
 
@@ -803,6 +804,64 @@ QC_ApplicationWindow::~QC_ApplicationWindow() {
 
     RS_DEBUG->print("QC_ApplicationWindow::~QC_ApplicationWindow: "
                     "deleting dialog factory: OK");
+}
+
+
+void QC_ApplicationWindow::refreshMenuAliases()
+{
+    
+    for (auto it = a_map.constBegin(); it != a_map.constEnd(); ++it) {
+        QAction* act = it.value();
+        if (!act) continue;
+        
+        
+        RS_DEBUG->print(it.key().toLatin1().data());
+
+        QString orig = act->property("origText").toString();
+        if (orig.isEmpty()) {
+            orig = act->text();
+            act->setProperty("origText", orig);
+        }
+
+        QVariant d = act->data();
+        RS2::ActionType at = RS2::ActionNone;
+        if (d.isValid() && d.canConvert<QString>()) {
+            QString data = d.toString();
+            RS_DEBUG->print("silas - data: %s", data.toLatin1().data());
+
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+            QStringList parts = data.split(',', Qt::SkipEmptyParts);
+#else
+            QStringList parts = data.split(',', QString::SkipEmptyParts);
+#endif
+            for (const QString& p : parts) {
+                QString token = p.trimmed().split(' ').first();
+                RS_DEBUG->print("silas - token: %s", token.toLatin1().data());
+                RS2::ActionType found = RS_COMMANDS->cmdToAction(token, false);
+                if (found != RS2::ActionNone) {
+                    at = found;
+                    break;
+                }
+            }
+        }
+
+        // RS_DEBUG->print("silas - at: %d", static_cast<int>(at));
+
+        if (at == RS2::ActionNone) {
+            RS_DEBUG->print("silas - no action skpping");
+            continue;
+        }
+
+        QStringList als = RS_COMMANDS->aliasesForAction(at);
+        if (als.isEmpty()) {
+            RS_DEBUG->print("silas - no aliases skpping");
+            continue;
+        }
+
+        QString aliasText = QString(" (%1)").arg(als.join(", "));
+        act->setText(orig + aliasText);
+    }
 }
 
 

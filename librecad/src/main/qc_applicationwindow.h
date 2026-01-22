@@ -237,6 +237,8 @@ public slots:
     void invokeMenuAssigner(const QString& menu_name);
     void updateMenu(const QString& menu_name);
 
+    void refreshMenuAliases();
+
     void invokeLicenseWindow();
 
 
