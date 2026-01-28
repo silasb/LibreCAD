@@ -56,7 +56,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/zoom_pan.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotZoomPan()));
-    action->setObjectName("ZoomPan");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionZoomPan).first());
     a_map["ZoomPan"] = action;
 
     // <[~ Select ~]>
@@ -117,7 +117,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
 
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawPoint()));
-    action->setObjectName("DrawPoint");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawPoint).first());
     a_map["DrawPoint"] = action;
 
     // <[~ Line ~]>
@@ -126,14 +126,14 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/line_2p.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLine()));
-    action->setObjectName("DrawLine");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLine).first());
     a_map["DrawLine"] = action;
 
     action = new QAction(tr("&Angle"), agm->line);
     action->setIcon(QIcon(":/icons/line_angle.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineAngle()));
-    action->setObjectName("DrawLineAngle");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineAngle).first());
     a_map["DrawLineAngle"] = action;
 
     action = new QAction(tr("&Horizontal"), agm->line);
@@ -160,91 +160,91 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/line_freehand.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineFree()));
-    action->setObjectName("DrawLineFree");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineFree).first());
     a_map["DrawLineFree"] = action;
 
     action = new QAction(tr("&Parallel"), agm->line);
     action->setIcon(QIcon(":/icons/line_parallel.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineParallel()));
-    action->setObjectName("DrawLineParallel");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineParallel).first());
     a_map["DrawLineParallel"] = action;
 
     action = new QAction(tr("Parallel through point"), agm->line);
     action->setIcon(QIcon(":/icons/line_parallel_p.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineParallelThrough()));
-    action->setObjectName("DrawLineParallelThrough");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineParallelThrough).first());
     a_map["DrawLineParallelThrough"] = action;
 
     action = new QAction(tr("Rectangle"), agm->line);
     action->setIcon(QIcon(":/icons/line_rectangle.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineRectangle()));
-    action->setObjectName("DrawLineRectangle");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineRectangle).first());
     a_map["DrawLineRectangle"] = action;
 
     action = new QAction(tr("Bisector"), agm->line);
     action->setIcon(QIcon(":/icons/line_bisector.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineBisector()));
-    action->setObjectName("DrawLineBisector");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineBisector).first());
     a_map["DrawLineBisector"] = action;
 
     action = new QAction(tr("Tangent (P,C)"), agm->line);
     action->setIcon(QIcon(":/icons/line_tangent_pc.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineTangent1()));
-    action->setObjectName("DrawLineTangent1");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineTangent1).first());
     a_map["DrawLineTangent1"] = action;
 
     action = new QAction(tr("Tangent (C,C)"), agm->line);
     action->setIcon(QIcon(":/icons/line_tangent_cc.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineTangent2()));
-    action->setObjectName("DrawLineTangent2");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineTangent2).first());
     a_map["DrawLineTangent2"] = action;
 
     action = new QAction(tr("Tangent &Orthogonal"), agm->line);
     action->setIcon(QIcon(":/icons/line_tangent_perpendicular.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineOrthTan()));
-    action->setObjectName("DrawLineOrthTan");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineOrthTan).first());
     a_map["DrawLineOrthTan"] = action;
 
     action = new QAction(tr("Orthogonal"), agm->line);
     action->setIcon(QIcon(":/icons/line_perpendicular.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineOrthogonal()));
-    action->setObjectName("DrawLineOrthogonal");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineOrthogonal).first());
     a_map["DrawLineOrthogonal"] = action;
 
     action = new QAction(tr("Relative angle"), agm->line);
     action->setIcon(QIcon(":/icons/line_relative_angle.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLineRelAngle()));
-    action->setObjectName("DrawLineRelAngle");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineRelAngle).first());
     a_map["DrawLineRelAngle"] = action;
 
     action = new QAction(tr("Pol&ygon (Cen,Cor)"), agm->line);
     action->setIcon(QIcon(":/icons/line_polygon_cen_cor.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLinePolygon()));
-    action->setObjectName("DrawLinePolygonCenCor");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLinePolygonCenCor).first());
     a_map["DrawLinePolygonCenCor"] = action;
 
     action = new QAction(tr("Pol&ygon (Cen,Tan)"), agm->line);  //20161223 added by txmy
     action->setIcon(QIcon(":/icons/line_polygon_cen_tan.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLinePolygon3()));
-    action->setObjectName("DrawLinePolygonCenTan");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLinePolygonCenTan).first());
     a_map["DrawLinePolygonCenTan"] = action;
 
     action = new QAction(tr("Polygo&n (Cor,Cor)"), agm->line);
     action->setIcon(QIcon(":/icons/line_polygon_cor_cor.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawLinePolygon2()));
-    action->setObjectName("DrawLinePolygonCorCor");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLinePolygonCorCor).first());
     a_map["DrawLinePolygonCorCor"] = action;
 
     // <[~ Circle ~]>
@@ -252,13 +252,13 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action = new QAction(tr("Center, &Point"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_center_point.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawCircle()));
-    action->setObjectName("DrawCircle");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircle).first());
     a_map["DrawCircle"] = action;
 
         action = new QAction(tr("Cross"), agm->circle);
     action->setIcon(QIcon(":/icons/cross_circle1.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawCircleCross()));
-    action->setObjectName("DrawCross");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCross).first());
     a_map["DrawCross"] = action;
 
     action = new QAction(tr("Snake"), agm->line);
@@ -282,31 +282,31 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action = new QAction(tr("Rectangle (1 Point)"), agm->line);
     action->setIcon(QIcon(":/icons/rectangle_1_point.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLineRectangle1Point()));
-    action->setObjectName("DrawLineRectangle1Point");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawRectangle1Point).first());
     a_map["DrawLineRectangle1Point"] = action;
 
     action = new QAction(tr("Rectangle (2 Points)"), agm->line);
     action->setIcon(QIcon(":/icons/rectangle_2_points.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLineRectangle2Points()));
-    action->setObjectName("DrawLineRectangle2Points");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawRectangle2Points).first());
     a_map["DrawLineRectangle2Points"] = action;
 
     action = new QAction(tr("Rectangle (3 Points)"), agm->line);
     action->setIcon(QIcon(":/icons/rectangle_3_points.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLineRectangleRel()));
-    action->setObjectName("DrawLineRectangle3Points");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawRectangle3Points).first());
     a_map["DrawLineRectangle3Points"] = action;
 
     action = new QAction(tr("Star"), agm->line);
     action->setIcon(QIcon(":/icons/line_polygon_star.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawStar()));
-    action->setObjectName("DrawStar");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawStar).first());
     a_map["DrawStar"] = action;
 
     action = new QAction(tr("Break/Divide"), agm->modify);
     action->setIcon(QIcon(":/icons/break_out_trim.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotModifyBreakDivide()));
-    action->setObjectName("ModifyBreakDivide");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyBreakDivide).first());
     a_map["ModifyBreakDivide"] = action;
 
     action = new QAction(tr("Line Gap"), agm->modify);
@@ -318,72 +318,72 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action = new QAction(tr("Angle From Line"), agm->line);
     action->setIcon(QIcon(":/icons/line_angle_rel.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLineAngleRel()));
-    action->setObjectName("DrawLineAngleRel");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineAngleRel).first());
     a_map["DrawLineAngleRel"] = action;
 
     action = new QAction(tr("Orthogonal From Line"), agm->line);
     action->setIcon(QIcon(":/icons/line_ortho_rel.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLineOrthogonalRel()));
-    action->setObjectName("DrawLineOrthogonalRel");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineOrthogonalRel).first());
     a_map["DrawLineOrthogonalRel"] = action;
 
     action = new QAction(tr("From Point To Line"), agm->line);
     action->setIcon(QIcon(":/icons/line_to_ortho.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLineOrthogonalTo()));
-    action->setObjectName("DrawLineFromPointToLine");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLineFromPointToLine).first());
     a_map["DrawLineFromPointToLine"] = action;
 
     action = new QAction(tr("Slice/Divide Line"), agm->circle);
     action->setIcon(QIcon(":/icons/slice_divide.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawSliceDivideLine()));
-    action->setObjectName("DrawSliceDivideLine");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawSliceDivideLine).first());
     a_map["DrawSliceDivideLine"] = action;
 
     action = new QAction(tr("Slice/Divide Circle"), agm->circle);
     action->setIcon(QIcon(":/icons/slice_divide_circle.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawSliceDivideCircle()));
-    action->setObjectName("DrawSliceDivideCircle");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawSliceDivideCircle).first());
     a_map["DrawSliceDivideCircle"] = action;
 
     action = new QAction(tr("Line of Points"), agm->circle);
     action->setIcon(QIcon(":/icons/line_points.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotDrawLinePoints()));
-    action->setObjectName("DrawLinePoints");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawLinePoints).first());
     a_map["DrawLinePoints"] = action;
 
     action = new QAction(tr("By Arc"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_by_arc.svg"));
     connect(action, SIGNAL(triggered()),
             action_handler, SLOT(slotDrawCircleByArc()));
-    action->setObjectName("DrawCircleByArc");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircleByArc).first());
     a_map["DrawCircleByArc"] = action;
 
     action = new QAction(tr("Center, &Radius"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_center_radius.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircleCR()));
-    action->setObjectName("DrawCircleCR");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircleCR).first());
     a_map["DrawCircleCR"] = action;
 
     action = new QAction(tr("2 Points"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_2_points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircle2P()));
-    action->setObjectName("DrawCircle2P");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircle2P).first());
     a_map["DrawCircle2P"] = action;
 
     action = new QAction(tr("2 Points, Radius"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_2_points_radius.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircle2PR()));
-    action->setObjectName("DrawCircle2PR");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircle2PR).first());
     a_map["DrawCircle2PR"] = action;
 
     action = new QAction(tr("3 Points"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_3_points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircle3P()));
-    action->setObjectName("DrawCircle3P");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircle3P).first());
     a_map["DrawCircle3P"] = action;
 
     action = new QAction(tr("&Concentric"), agm->circle);
@@ -405,28 +405,28 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/circle_tangential_2circles_radius.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircleTan2()));
-    action->setObjectName("DrawCircleTan2");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircleTan2).first());
     a_map["DrawCircleTan2"] = action;
 
     action = new QAction(tr("Tangential 2 Circles, 1 Point"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_tangential_2circles_point.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircleTan2_1P()));
-    action->setObjectName("DrawCircleTan2_1P");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircleTan2_1P).first());
     a_map["DrawCircleTan2_1P"] = action;
 
     action = new QAction(tr("Tangential &3 Circles"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_tangential_3entities.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircleTan3()));
-    action->setObjectName("DrawCircleTan3");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircleTan3).first());
     a_map["DrawCircleTan3"] = action;
 
     action = new QAction(tr("Tangential, 2 P&oints"), agm->circle);
     action->setIcon(QIcon(":/icons/circle_tangential_2points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawCircleTan1_2P()));
-    action->setObjectName("DrawCircleTan1_2P");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawCircleTan1_2P).first());
     a_map["DrawCircleTan1_2P"] = action;
 
     // <[~ Arc ~]>
@@ -436,7 +436,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setCheckable(true);
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawArc()));
-    action->setObjectName("DrawArc");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawArc).first());
     a_map["DrawArc"] = action;
 
     action = new QAction(tr("&3 Points"), agm->curve);
@@ -444,7 +444,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setCheckable(true);
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawArc3P()));
-    action->setObjectName("DrawArc3P");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawArc3P).first());
     a_map["DrawArc3P"] = action;
 
     action = new QAction(tr("&Concentric"), agm->curve);
@@ -460,7 +460,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setCheckable(true);
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawArcTangential()));
-    action->setObjectName("DrawArcTangential");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawArcTangential).first());
     a_map["DrawArcTangential"] = action;
 
     // <[~ Ellipse ~]>
@@ -469,42 +469,42 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/ellipse_axis.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawEllipseAxis()));
-    action->setObjectName("DrawEllipseAxis");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawEllipseAxis).first());
     a_map["DrawEllipseAxis"] = action;
 
     action = new QAction(tr("Ellipse &Arc (Axis)"), agm->ellipse);
     action->setIcon(QIcon(":/icons/ellipse_arc_axis.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawEllipseArcAxis()));
-    action->setObjectName("DrawEllipseArcAxis");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawEllipseArcAxis).first());
     a_map["DrawEllipseArcAxis"] = action;
 
     action = new QAction(tr("Ellipse &Foci Point"), agm->ellipse);
     action->setIcon(QIcon(":/icons/ellipse_foci_point.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawEllipseFociPoint()));
-    action->setObjectName("DrawEllipseFociPoint");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawEllipseFociPoint).first());
     a_map["DrawEllipseFociPoint"] = action;
 
     action = new QAction(tr("Ellipse &4 Point"), agm->ellipse);
     action->setIcon(QIcon(":/icons/ellipse_4_points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawEllipse4Points()));
-    action->setObjectName("DrawEllipse4Points");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawEllipse4Points).first());
     a_map["DrawEllipse4Points"] = action;
 
     action = new QAction(tr("Ellipse Center and &3 Points"), agm->ellipse);
     action->setIcon(QIcon(":/icons/ellipse_center_3_points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawEllipseCenter3Points()));
-    action->setObjectName("DrawEllipseCenter3Points");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawEllipseCenter3Points).first());
     a_map["DrawEllipseCenter3Points"] = action;
 
     action = new QAction(tr("Ellipse &Inscribed"), agm->ellipse);
     action->setIcon(QIcon(":/icons/ellipse_inscribed.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawEllipseInscribe()));
-    action->setObjectName("DrawEllipseInscribe");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawEllipseInscribe).first());
     a_map["DrawEllipseInscribe"] = action;
 
     // Parabola
@@ -512,14 +512,14 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/parabola_4_points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawParabola4Points()));
-    action->setObjectName("DrawParabola4Points");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawParabola4Points).first());
     a_map["DrawParabola4Points"] = action;
 
     action = new QAction(tr("Parabola &Focus Directrix"), agm->curve);
     action->setIcon(QIcon(":/icons/parabola_focus_directrix.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawParabolaFD()));
-    action->setObjectName("DrawParabolaFD");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawParabolaFD).first());
     a_map["DrawParabolaFD"] = action;
 
     // <[~ Spline ~]>
@@ -528,14 +528,14 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/spline.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawSpline()));
-    action->setObjectName("DrawSpline");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawSpline).first());
     a_map["DrawSpline"] = action;
 
     action = new QAction(tr("&Spline through points"), agm->curve);
     action->setIcon(QIcon(":/icons/spline_points.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawSplinePoints()));
-    action->setObjectName("DrawSplinePoints");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawSplinePoints).first());
     a_map["DrawSplinePoints"] = action;
 
     // <[~ Polyline ~]>
@@ -544,7 +544,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/polylines_polyline.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawPolyline()));
-    action->setObjectName("DrawPolyline");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawPolyline).first());
     a_map["DrawPolyline"] = action;
 
     action = new QAction(tr("&Add node"), agm->polyline);
@@ -552,7 +552,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/insert_node.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineAdd()));
-    action->setObjectName("PolylineAdd");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineAdd).first());
     a_map["PolylineAdd"] = action;
 
     action = new QAction(tr("A&ppend node"), agm->polyline);
@@ -560,7 +560,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/append_node.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineAppend()));
-    action->setObjectName("PolylineAppend");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineAppend).first());
     a_map["PolylineAppend"] = action;
 
     action = new QAction(tr("&Delete node"), agm->polyline);
@@ -568,7 +568,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/delete_node.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineDel()));
-    action->setObjectName("PolylineDel");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineDel).first());
     a_map["PolylineDel"] = action;
 
     action = new QAction(tr("Delete &between two nodes"), agm->polyline);
@@ -576,7 +576,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/delete_between_nodes.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineDelBetween()));
-    action->setObjectName("PolylineDelBetween");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineDelBetween).first());
     a_map["PolylineDelBetween"] = action;
 
     action = new QAction(tr("&Trim segments"), agm->polyline);
@@ -584,21 +584,21 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/trim.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineTrim()));
-    action->setObjectName("PolylineTrim");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineTrim).first());
     a_map["PolylineTrim"] = action;
 
     action = new QAction(tr("Create &Equidistant Polylines"), agm->polyline);
     action->setIcon(QIcon(":/icons/create_equidistant_polyline.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineEquidistant()));
-    action->setObjectName("PolylineEquidistant");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineEquidistant).first());
     a_map["PolylineEquidistant"] = action;
 
     action = new QAction(tr("Create Polyline from Existing &Segments"), agm->polyline);
     action->setIcon(QIcon(":/icons/create_polyline_from_existing_segments.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotPolylineSegment()));
-    action->setObjectName("PolylineSegment");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionPolylineSegment).first());
     a_map["PolylineSegment"] = action;
 
     // <[~ Misc ~]>
@@ -606,21 +606,21 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action = new QAction(QIcon(":/icons/mtext.svg"), tr("&MText"), agm->other);
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawMText()));
-    action->setObjectName("DrawMText");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawMText).first());
     a_map["DrawMText"] = action;
 
     action = new QAction(tr("&Text"), agm->other);
     action->setIcon(QIcon(":/icons/text.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawText()));
-    action->setObjectName("DrawText");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawText).first());
     a_map["DrawText"] = action;
 
     action = new QAction(tr("&Hatch"), agm->other);
     action->setIcon(QIcon(":/icons/hatch.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDrawHatch()));
-    action->setObjectName("DrawHatch");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawHatchNoSelect).first());
     a_map["DrawHatch"] = action;
 
     action = new QAction(tr("Insert &Image"), agm->other);
@@ -636,49 +636,49 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/dim_aligned.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimAligned()));
-    action->setObjectName("DimAligned");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimAligned).first());
     a_map["DimAligned"] = action;
 
     action = new QAction(tr("&Linear"), agm->dimension);
     action->setIcon(QIcon(":/icons/dim_linear.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimLinear()));
-    action->setObjectName("DimLinear");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimLinear).first());
     a_map["DimLinear"] = action;
 
     action = new QAction(tr("&Horizontal"), agm->dimension);
     action->setIcon(QIcon(":/icons/dim_horizontal.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimLinearHor()));
-    action->setObjectName("DimLinearHor");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimLinearHor).first());
     a_map["DimLinearHor"] = action;
 
     action = new QAction(tr("&Vertical"), agm->dimension);
     action->setIcon(QIcon(":/icons/dim_vertical.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimLinearVer()));
-    action->setObjectName("DimLinearVer");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimLinearVer).first());
     a_map["DimLinearVer"] = action;
 
     action = new QAction(tr("&Radial"), agm->dimension);
     action->setIcon(QIcon(":/icons/dim_radial.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimRadial()));
-    action->setObjectName("DimRadial");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimRadial).first());
     a_map["DimRadial"] = action;
 
     action = new QAction(tr("&Diametric"), agm->dimension);
     action->setIcon(QIcon(":/icons/dim_diametric.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimDiametric()));
-    action->setObjectName("DimDiametric");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimDiametric).first());
     a_map["DimDiametric"] = action;
 
     action = new QAction(tr("&Angular"), agm->dimension);
     action->setIcon(QIcon(":/icons/dim_angular.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimAngular()));
-    action->setObjectName("DimAngular");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimAngular).first());
     a_map["DimAngular"] = action;
 
     action = new QAction(tr("&Arc"), agm->dimension);
@@ -692,7 +692,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/dim_leader.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotDimLeader()));
-    action->setObjectName("DimLeader");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDimLeader).first());
     a_map["DimLeader"] = action;
 
     // <[~ Modify ~]>
@@ -701,15 +701,14 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/attributes.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyAttributes()));
-    action->setObjectName("ModifyAttributes");
-    action->setData("modifyattr, attr, ma");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyAttributes).first());
     a_map["ModifyAttributes"] = action;
 
     action = new QAction(tr("&Delete"), agm->modify);
     action->setIcon(QIcon(":/icons/delete.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyDelete()));
-    action->setObjectName("ModifyDelete");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyDelete).first());
     a_map["ModifyDelete"] = action;
 
     action = new QAction(tr("Delete Freehand"), agm->modify);
@@ -723,140 +722,126 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/move_copy.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyMove()));
-    action->setObjectName("ModifyMove");
-    action->setData("move, mv");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyMove).first());
     a_map["ModifyMove"] = action;
 
     action = new QAction(tr("Re&vert direction"), agm->modify);
     action->setIcon(QIcon(":/icons/revert_direction.svg"));
     action->setShortcut(QKeySequence(tr("Ctrl+R")));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotModifyRevertDirection()));
-    action->setObjectName("ModifyRevertDirection");
-    action->setData("revert, rev");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyRevertDirection).first());
     a_map["ModifyRevertDirection"] = action;
 
     action = new QAction(tr("&Rotate"), agm->modify);
     action->setIcon(QIcon(":/icons/rotate.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyRotate()));
-    action->setObjectName("ModifyRotate");
-    action->setData("rotate, ro");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyRotate).first());
     a_map["ModifyRotate"] = action;
 
     action = new QAction(tr("&Scale"), agm->modify);
     action->setIcon(QIcon(":/icons/scale.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyScale()));
-    action->setObjectName("ModifyScale");
-    action->setData("scale, sz");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyScale).first());
     a_map["ModifyScale"] = action;
 
     action = new QAction(tr("&Mirror"), agm->modify);
     action->setIcon(QIcon(":/icons/mirror.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyMirror()));
-    action->setObjectName("ModifyMirror");
-    action->setData("mirror, mi");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyMirror).first());
     a_map["ModifyMirror"] = action;
 
     action = new QAction(tr("Mo&ve and Rotate"), agm->modify);
     action->setIcon(QIcon(":/icons/move_rotate.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyMoveRotate()));
-    action->setObjectName("ModifyMoveRotate");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyMoveRotate).first());
     a_map["ModifyMoveRotate"] = action;
 
     action = new QAction(tr("Rotate T&wo"), agm->modify);
     action->setIcon(QIcon(":/icons/rotate2.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyRotate2()));
-    action->setObjectName("ModifyRotate2");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyRotate2).first());
     a_map["ModifyRotate2"] = action;
 
     action = new QAction(tr("&Properties"), agm->modify);
     action->setIcon(QIcon(":/icons/properties.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyEntity()));
-    action->setObjectName("ModifyEntity");
-    action->setData("properties, prop");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyEntity).first());
     a_map["ModifyEntity"] = action;
 
     action = new QAction(tr("&Trim"), agm->modify);
     action->setIcon(QIcon(":/icons/trim.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyTrim()));
-    action->setObjectName("ModifyTrim");
-    action->setData("trim, tm");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyTrim).first());
     a_map["ModifyTrim"] = action;
 
     action = new QAction(tr("Tr&im Two"), agm->modify);
     action->setIcon(QIcon(":/icons/trim2.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyTrim2()));
-    action->setObjectName("ModifyTrim2");
-    action->setData("trim2, tm2");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyTrim2).first());
     a_map["ModifyTrim2"] = action;
 
     action = new QAction(tr("&Lengthen"), agm->modify);
     action->setIcon(QIcon(":/icons/trim_value.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyTrimAmount()));
-    action->setObjectName("ModifyTrimAmount");
-    action->setData("lengthen, le");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyTrimAmount).first());
     a_map["ModifyTrimAmount"] = action;
 
     action = new QAction(tr("O&ffset"),agm->modify);
     action->setIcon(QIcon(":/icons/offset.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyOffset()));
-    action->setObjectName("ModifyOffset");
-    action->setData("offset, o");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyOffset).first());
     a_map["ModifyOffset"] = action;
 
     action = new QAction(tr("&Divide"), agm->modify);
     action->setIcon(QIcon(":/icons/divide.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyCut()));
-    action->setObjectName("ModifyCut");
-    action->setData("divide, cut, div");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyCut).first());
     a_map["ModifyCut"] = action;
 
     action = new QAction(tr("&Stretch"), agm->modify);
     action->setIcon(QIcon(":/icons/stretch.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyStretch()));
-    action->setObjectName("ModifyStretch");
-    action->setData("stretch, ss");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyStretch).first());
     a_map["ModifyStretch"] = action;
 
     action = new QAction(tr("&Bevel"), agm->modify);
     action->setIcon(QIcon(":/icons/bevel.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyBevel()));
-    action->setObjectName("ModifyBevel");
-    action->setData("bevel, bev, ch");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyBevel).first());
     a_map["ModifyBevel"] = action;
 
     action = new QAction(tr("&Fillet"), agm->modify);
     action->setIcon(QIcon(":/icons/fillet.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyRound()));
-    action->setObjectName("ModifyRound");
-    action->setData("fillet, fi");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyRound).first());
     a_map["ModifyRound"] = action;
 
     action = new QAction(tr("&Explode Text into Letters"), agm->modify);
     action->setIcon(QIcon(":/icons/explode_text_to_letters.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotModifyExplodeText()));
-    action->setObjectName("ModifyExplodeText");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyExplodeText).first());
     a_map["ModifyExplodeText"] = action;
 
     action = new QAction(tr("Ex&plode"), agm->modify);
     action->setIcon(QIcon(":/icons/explode.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotBlocksExplode()));
-    action->setObjectName("BlocksExplode");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionBlocksExplode).first());
     a_map["BlocksExplode"] = action;
 
 
@@ -899,14 +884,14 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/line_join.svg"));
     connect(action, SIGNAL(triggered()),
             action_handler, SLOT(slotModifyLineJoin()));
-    action->setObjectName("ModifyLineJoin");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyLineJoin).first());
     a_map["ModifyLineJoin"] = action;
 
     action = new QAction(tr("Duplicate"), agm->modify);
     action->setIcon(QIcon(":/icons/duplicate.svg"));
     connect(action, SIGNAL(triggered()),
             action_handler, SLOT(slotModifyDuplicate()));
-    action->setObjectName("ModifyDuplicate");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionModifyDuplicate).first());
     a_map["ModifyDuplicate"] = action;
 
     // <[~ Info ~]>
@@ -921,21 +906,21 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/distance_point_to_point.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotInfoDist()));
-    action->setObjectName("InfoDist");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionInfoDist).first());
     a_map["InfoDist"] = action;
 
     action = new QAction(tr("&Distance Entity to Point"), agm->info);
     action->setIcon(QIcon(":/icons/distance_point_to_entity.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotInfoDist2()));
-    action->setObjectName("InfoDist2");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionInfoDist2).first());
     a_map["InfoDist2"] = action;
 
     action = new QAction(tr("An&gle between two lines"), agm->info);
     action->setIcon(QIcon(":/icons/angle_line_to_line.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotInfoAngle()));
-    action->setObjectName("InfoAngle");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionInfoDist).first());
     a_map["InfoAngle"] = action;
 
     action = new QAction(tr("&Total length of selected entities"), agm->info);
@@ -949,7 +934,7 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setIcon(QIcon(":/icons/polygonal_area.svg"));
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotInfoArea()));
-    action->setObjectName("InfoArea");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionInfoArea).first());
     a_map["InfoArea"] = action;
 
     foreach (QAction* value, a_map)
@@ -1550,7 +1535,7 @@ void LC_ActionFactory::commonActions(QMap<QString, QAction*>& a_map, LC_ActionGr
         action->setIcon(QIcon(":/icons/zoom_auto.svg"));
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotZoomAuto()));
-    action->setObjectName("ZoomAuto");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionZoomAuto).first());
     a_map["ZoomAuto"] = action;
 
     action = new QAction(tr("Previous &View"), agm->view);
@@ -1561,7 +1546,7 @@ void LC_ActionFactory::commonActions(QMap<QString, QAction*>& a_map, LC_ActionGr
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotZoomPrevious()));
     action->setEnabled(false);
-    action->setObjectName("ZoomPrevious");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionZoomPrevious).first());
     a_map["ZoomPrevious"] = action;
 
     action = new QAction(tr("&Redraw"), agm->view);
@@ -1572,7 +1557,7 @@ void LC_ActionFactory::commonActions(QMap<QString, QAction*>& a_map, LC_ActionGr
     action->setShortcut(QKeySequence::Refresh);
     connect(action, SIGNAL(triggered()),
     action_handler, SLOT(slotZoomRedraw()));
-    action->setObjectName("ZoomRedraw");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionZoomRedraw).first());
     a_map["ZoomRedraw"] = action;
 
     action = new QAction(tr("&Window Zoom"), agm->other);
@@ -1582,7 +1567,7 @@ void LC_ActionFactory::commonActions(QMap<QString, QAction*>& a_map, LC_ActionGr
     else
         action->setIcon(QIcon(":/icons/zoom_window.svg"));
     connect(action, SIGNAL(triggered()), action_handler, SLOT(slotZoomWindow()));
-    action->setObjectName("ZoomWindow");
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionZoomWindow).first());
     a_map["ZoomWindow"] = action;
 
     // <[~ File ~]>
