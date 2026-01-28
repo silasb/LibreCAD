@@ -59,42 +59,50 @@ QG_SnapToolBar::QG_SnapToolBar(QWidget* parent, QG_ActionHandler* ah, LC_ActionG
     snapFree->setCheckable(true);
     snapFree->setObjectName("SnapFree");
     connect(snapFree, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapFree->setShortcut(QKeySequence("Ctrl+1"));
     this->addAction(snapFree);
     snapGrid = new QAction(QIcon(":/icons/snap_grid.svg"), tr("Snap on grid"), agm->snap);
     snapGrid->setObjectName("SnapGrid");
     snapGrid->setCheckable(true);
     connect(snapGrid, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapGrid->setShortcut(QKeySequence("Ctrl+2"));
     this->addAction(snapGrid);
     snapEnd = new QAction(QIcon(":/icons/snap_endpoints.svg"), tr("Snap on Endpoints"), agm->snap);
     snapEnd->setObjectName("SnapEnd");
     snapEnd->setCheckable(true);
     connect(snapEnd, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapEnd->setShortcut(QKeySequence("Ctrl+3"));
     this->addAction(snapEnd);
     snapOnEntity = new QAction(QIcon(":/icons/snap_entity.svg"), tr("Snap on Entity"), agm->snap);
     snapOnEntity->setObjectName("SnapEntity");
     snapOnEntity->setCheckable(true);
     connect(snapOnEntity, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapOnEntity->setShortcut(QKeySequence("Ctrl+4"));
     this->addAction(snapOnEntity);
     snapCenter = new QAction(QIcon(":/icons/snap_center.svg"), tr("Snap Center"), agm->snap);
     snapCenter->setObjectName("SnapCenter");
     snapCenter->setCheckable(true);
     connect(snapCenter, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapCenter->setShortcut(QKeySequence("Ctrl+5"));
     this->addAction(snapCenter);
     snapMiddle = new QAction(QIcon(":/icons/snap_middle.svg"), tr("Snap Middle"), agm->snap);
     snapMiddle->setObjectName("SnapMiddle");
     snapMiddle->setCheckable(true);
     connect(snapMiddle, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapMiddle->setShortcut(QKeySequence("Ctrl+6"));
     this->addAction(snapMiddle);
     snapDistance = new QAction(QIcon(":/icons/snap_distance.svg"), tr("Snap Distance"), agm->snap);
     snapDistance->setObjectName("SnapDistance");
     snapDistance ->setCheckable(true);
     connect(snapDistance, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    snapDistance->setShortcut(QKeySequence("Ctrl+7"));
     this->addAction(snapDistance);
     snapIntersection = new QAction(QIcon(":/icons/snap_intersection.svg"), tr("Snap Intersection"), agm->snap);
     snapIntersection->setObjectName("SnapIntersection");
     snapIntersection->setCheckable(true);
     connect(snapIntersection, SIGNAL(triggered()), this, SLOT(actionTriggered()));
-	this->addAction(snapIntersection);
+    snapIntersection->setShortcut(QKeySequence("Ctrl+8"));
+    this->addAction(snapIntersection);
 
     this->addSeparator();
 
@@ -117,6 +125,7 @@ QG_SnapToolBar::QG_SnapToolBar(QWidget* parent, QG_ActionHandler* ah, LC_ActionG
     restrictOrthogonal->setCheckable(true);
     connect(restrictOrthogonal, SIGNAL(triggered(bool)), this,
             SLOT(slotRestrictOrthogonal(bool)));
+    restrictOrthogonal->setShortcut(QKeySequence("Ctrl+0"));
 	this->addAction(restrictOrthogonal);
 
     restrictNothing = new QAction(QIcon(":/extui/restrictnothing.png"),
