@@ -77,8 +77,20 @@ void RS_ActionDrawWall::trigger() {
     RS_Wall* wall = new RS_Wall(container, wallData);
     wall->setLayerToActive();
     wall->setPenToActive();
-    wall->update();
     container->addEntity(wall);
+
+    // Update after adding to container so neighbor lookup works
+    wall->update();
+
+    // Update neighbor walls so their geometry adjusts to the new connection
+    RS_Wall* neighborStart = wall->findNeighborAt(startpoint);
+    if (neighborStart) {
+        neighborStart->update();
+    }
+    RS_Wall* neighborEnd = wall->findNeighborAt(mouse);
+    if (neighborEnd) {
+        neighborEnd->update();
+    }
 
     if (document) {
         document->startUndoCycle();

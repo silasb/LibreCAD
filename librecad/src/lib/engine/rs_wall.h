@@ -98,10 +98,19 @@ public:
                  const RS_Vector& offset) override;
     void moveRef(const RS_Vector& ref, const RS_Vector& offset) override;
 
+    RS_Wall* findNeighborAt(const RS_Vector& point) const;
+    void updateNeighbors();
+
     friend std::ostream& operator << (std::ostream& os, const RS_Wall& w);
 
 protected:
     RS_WallData data;
+
+private:
+    void computeJoinPoints(const RS_Wall* neighbor,
+                           const RS_Vector& sharedPoint,
+                           RS_Vector& leftPt,
+                           RS_Vector& rightPt) const;
 };
 
 #endif
