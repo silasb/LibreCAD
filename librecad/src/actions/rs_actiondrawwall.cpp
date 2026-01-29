@@ -178,7 +178,7 @@ void RS_ActionDrawWall::commandEvent(RS_CommandEvent* e) {
 
     default:
         lastStatus = (Status)getStatus();
-        if (checkCommand("thickness", c)) {
+        if (c == tr("thickness") || c == "thickness" || c == "t") {
             setStatus(SetThickness);
             e->accept();
         }
@@ -192,7 +192,7 @@ QStringList RS_ActionDrawWall::getAvailableCommands() {
     switch (getStatus()) {
     case SetStartpoint:
     case SetEndpoint:
-        cmd += command("thickness");
+        cmd += tr("thickness");
         break;
     default:
         break;
