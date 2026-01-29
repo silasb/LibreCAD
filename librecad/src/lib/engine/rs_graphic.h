@@ -35,6 +35,9 @@
 #include "rs_variabledict.h"
 #include "rs_document.h"
 
+#include <QList>
+#include "rs_xref.h"
+
 class QG_LayerWidget;
 
 /**
@@ -326,6 +329,11 @@ public:
     double getMarginRightInUnits();
     double getMarginBottomInUnits();
 
+    // XRef POC
+    bool attachXRef(const QString& path);
+    int xrefCount() const { return xrefList.count(); }
+    RS_XRef* xrefAt(int i) { return (i>=0 && i<xrefList.count()) ? xrefList.at(i) : nullptr; }
+
     /**
      * Number of pages drawing occupies
      */
@@ -364,6 +372,7 @@ private:
         // Number of pages drawing occupies
         int pagesNumH = 1;
         int pagesNumV = 1;
+        QList<RS_XRef*> xrefList;
 };
 
 

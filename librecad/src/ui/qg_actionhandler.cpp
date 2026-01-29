@@ -39,6 +39,7 @@
 #include "rs_dialogfactory.h"
 #include "rs_commandevent.h"
 #include "rs_commands.h"
+#include "rs_graphic.h"
 
 #include "rs_actionblocksadd.h"
 #include "rs_actionblocksattributes.h"
@@ -1275,6 +1276,106 @@ bool QG_ActionHandler::command(const QString& cmd)
         view->back();
         RS_DEBUG->print("QG_ActionHandler::command: back");
         return true;
+    }
+
+    // quick XREF POC command handling: "xref attach <path>" and "xref list"
+    if (c.startsWith("xref")) {
+        QStringList parts = cmd.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        if (parts.size() >= 2) {
+            QString sub = parts[1].toLower();
+            if (sub == "attach" && parts.size() >= 3) {
+                QString path = parts.mid(2).join(' ');
+                RS_DEBUG->print("QG_ActionHandler::command: xref attach %s", path.toLatin1().data());
+                if (document) {
+                    RS_Graphic* g = dynamic_cast<RS_Graphic*>(document);
+                    if (g) {
+                        bool ok = g->attachXRef(path);
+                        if (ok) {
+                            view->redraw(RS2::RedrawAll);
+                        }
+                        RS_DIALOGFACTORY->commandMessage(ok?tr("XRef attached"):tr("XRef attach failed"));
+                        return true;
+                    }
+                }
+                RS_DIALOGFACTORY->commandMessage(tr("No document to attach XRef"));
+                return true;
+            }
+            else if (sub == "list") {
+                if (document) {
+                    RS_Graphic* g = dynamic_cast<RS_Graphic*>(document);
+                    if (g) {
+                        int n = g->xrefCount();
+                        if (n==0) {
+                            RS_DIALOGFACTORY->commandMessage(tr("No XRefs attached"));
+                        } else {
+                            for (int i=0;i<n;i++) {
+                                RS_XRef* xr = g->xrefAt(i);
+                                if (xr) RS_DIALOGFACTORY->commandMessage(xr->path());
+                            }
+                        }
+                        return true;
+                    }
+                }
+                RS_DIALOGFACTORY->commandMessage(tr("No document to list XRefs"));
+                return true;
+            }
+            else if (sub == "reload" && parts.size() >= 3) {
+                if (!document) {
+                    RS_DIALOGFACTORY->commandMessage(tr("No document to reload XRefs"));
+                    return true;
+                }
+                RS_Graphic* g = dynamic_cast<RS_Graphic*>(document);
+                if (!g) {
+                    RS_DIALOGFACTORY->commandMessage(tr("No graphic document to reload XRefs"));
+                    return true;
+                }
+
+                QString arg = parts.mid(2).join(' ');
+                if (arg.toLower() == "all") {
+                    int n = g->xrefCount();
+                    for (int i=0;i<n;i++) {
+                        RS_XRef* xr = g->xrefAt(i);
+                        if (xr) xr->reload();
+                    }
+                    RS_DIALOGFACTORY->commandMessage(tr("XRefs reloaded"));
+                    return true;
+                }
+
+                bool ok = false;
+                int idx = arg.toInt(&ok);
+                if (ok) {
+                    if (idx >= 0 && idx < g->xrefCount()) {
+                        RS_XRef* xr = g->xrefAt(idx);
+                        if (xr && xr->reload()) {
+                            RS_DIALOGFACTORY->commandMessage(tr("XRef reloaded"));
+                        } else {
+                            RS_DIALOGFACTORY->commandMessage(tr("XRef reload failed"));
+                        }
+                        return true;
+                    } else {
+                        RS_DIALOGFACTORY->commandMessage(tr("XRef index out of range"));
+                        return true;
+                    }
+                }
+
+                // try matching by path
+                for (int i=0;i<g->xrefCount();++i) {
+                    RS_XRef* xr = g->xrefAt(i);
+                    if (xr && xr->path() == arg) {
+                        if (xr->reload()) {
+                            RS_DIALOGFACTORY->commandMessage(tr("XRef reloaded"));
+                        } else {
+                            RS_DIALOGFACTORY->commandMessage(tr("XRef reload failed"));
+                        }
+                        return true;
+                    }
+                }
+
+                RS_DIALOGFACTORY->commandMessage(tr("XRef not found"));
+                return true;
+            }
+        }
+        // unrecognized xref subcommand: fall through to normal handling
     }
 
     // pass command on to running action:

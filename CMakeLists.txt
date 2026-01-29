@@ -222,6 +222,7 @@ librecad/src/lib/engine/rs_dimaligned.cpp
 librecad/src/lib/engine/rs_dimdiametric.cpp
 librecad/src/lib/engine/rs_dimlinear.cpp
 librecad/src/lib/engine/rs_graphic.cpp
+librecad/src/lib/engine/rs_xref.cpp
 librecad/src/lib/engine/rs_units.cpp
 librecad/src/lib/engine/rs_atomicentity.cpp
 librecad/src/lib/engine/rs_fontlist.cpp

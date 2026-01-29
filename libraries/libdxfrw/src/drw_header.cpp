@@ -1667,11 +1667,35 @@ void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
             writer->writeDouble(40, 0.0);
     }
 
-#ifdef DRW_DBG
+    // Write any remaining custom variables (e.g. $LC_XREF_*)
+    DRW_DBG("DRW_Header::write: flushing ");
+    DRW_DBG(static_cast<int>(vars.size()));
+    DRW_DBG(" remaining vars\n");
     for ( auto it=vars.begin() ; it != vars.end(); ++it ){
+        DRW_DBG("DRW_Header::write: writing custom var ");
         DRW_DBG((*it).first); DRW_DBG("\n");
+        DRW_Variant *var = (*it).second;
+        if (var == nullptr) continue;
+        writer->writeString(9, (*it).first);
+        switch (var->type()) {
+        case DRW_Variant::STRING:
+            writer->writeString(var->code(), var->content.s->c_str());
+            break;
+        case DRW_Variant::INTEGER:
+            writer->writeInt16(var->code(), var->content.i);
+            break;
+        case DRW_Variant::DOUBLE:
+            writer->writeDouble(var->code(), var->content.d);
+            break;
+        case DRW_Variant::COORD:
+            writer->writeDouble(10, var->content.v->x);
+            writer->writeDouble(20, var->content.v->y);
+            writer->writeDouble(30, var->content.v->z);
+            break;
+        default:
+            break;
+        }
     }
-#endif
 }
 
 void DRW_Header::addDouble(std::string key, double value, int code){

@@ -333,6 +333,7 @@ SOURCES += \
     lib/engine/rs_font.cpp \
     lib/engine/rs_fontlist.cpp \
     lib/engine/rs_graphic.cpp \
+    lib/engine/rs_xref.cpp \
     lib/engine/rs_hatch.cpp \
     lib/engine/lc_hyperbola.cpp \
     lib/engine/rs_insert.cpp \

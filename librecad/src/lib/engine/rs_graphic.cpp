@@ -106,6 +106,18 @@ RS_Graphic::RS_Graphic(RS_EntityContainer* parent)
  */
 RS_Graphic::~RS_Graphic() = default;
 
+// Attach a simple XRef (POC). Loads file and clones top-level entities
+bool RS_Graphic::attachXRef(const QString& path)
+{
+    RS_XRef* xr = new RS_XRef(path, this);
+    if (!xr->load()) {
+        delete xr;
+        return false;
+    }
+    xrefList.append(xr);
+    return true;
+}
+
 
 
 /**
@@ -365,7 +377,19 @@ bool RS_Graphic::save(bool isAutoSave)
             RS_DEBUG->print("RS_Graphic::save: Format: %d", (int) actualType);
             RS_DEBUG->print("RS_Graphic::save: Export...");
 
-			ret = RS_FileIO::instance()->fileExport(*this, actualName, actualType);
+		// Persist xref paths as DXF header variables before export
+		RS_DEBUG->print("RS_Graphic::save: xrefList.count()=%d", xrefList.count());
+		if (xrefList.count() > 0) {
+		    addVariable("$LC_XREF_COUNT", xrefList.count(), 70);
+		    for (int i = 0; i < xrefList.count(); i++) {
+		        RS_DEBUG->print("RS_Graphic::save: persisting xref %d: %s",
+		                        i, xrefList.at(i)->path().toLatin1().data());
+		        addVariable(QString("$LC_XREF_%1").arg(i),
+		                    xrefList.at(i)->path(), 1);
+		    }
+		}
+
+		ret = RS_FileIO::instance()->fileExport(*this, actualName, actualType);
 			QFileInfo	finfo(actualName);
 			modifiedTime=finfo.lastModified();
 			currentFileName=actualName;
@@ -536,6 +560,19 @@ bool RS_Graphic::open(const QString &filename, RS2::FormatType type) {
     ret = RS_FileIO::instance()->fileImport(*this, filename, type);
 
     if( ret) {
+        // Re-attach any persisted xrefs
+        int xrefCount = getVariableInt("$LC_XREF_COUNT", 0);
+        RS_DEBUG->print("RS_Graphic::open: found %d persisted xrefs", xrefCount);
+        for (int i = 0; i < xrefCount; i++) {
+            QString path = getVariableString(
+                QString("$LC_XREF_%1").arg(i), "");
+            RS_DEBUG->print("RS_Graphic::open: re-attaching xref %d: %s",
+                            i, path.toLatin1().data());
+            if (!path.isEmpty()) {
+                attachXRef(path);
+            }
+        }
+
         setModified(false);
         layerList.setModified(false);
         blockList.setModified(false);
