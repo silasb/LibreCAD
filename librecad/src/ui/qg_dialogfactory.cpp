@@ -828,6 +828,10 @@ void QG_DialogFactory::requestOptions(RS_ActionInterface* action,
         requestImageOptions(action, on, update);
         break;
 
+    case RS2::ActionDrawWall:
+        // Phase 1: no options widget, thickness set via command line
+        break;
+
     case RS2::ActionDimAligned:
         requestDimensionOptions(action, on, update);
         break;
@@ -1603,6 +1607,10 @@ bool QG_DialogFactory::requestModifyEntityDialog(RS_Entity* entity) {
             ret = true;
         }
     }
+        break;
+
+    case RS2::EntityWall:
+        // Phase 1: no edit dialog for walls
         break;
 
     default:

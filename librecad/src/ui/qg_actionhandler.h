@@ -186,6 +186,8 @@ public slots:
 	void slotPolylineEquidistant();
 	void slotPolylineSegment();
 
+	void slotDrawWall();
+
 	void slotDimAligned();
 	void slotDimLinear();
 	void slotDimLinearHor();

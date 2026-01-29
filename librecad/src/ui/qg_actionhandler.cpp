@@ -78,6 +78,7 @@
 #include "rs_actiondrawellipseinscribe.h"
 #include "rs_actiondrawhatch.h"
 #include "rs_actiondrawimage.h"
+#include "rs_actiondrawwall.h"
 #include "rs_actiondrawline.h"
 #include "rs_actiondrawlineangle.h"
 #include "rs_actiondrawlinebisector.h"
@@ -659,6 +660,12 @@ RS_ActionInterface* QG_ActionHandler::setCurrentAction(RS2::ActionType id) {
         break;   
     case RS2::ActionDrawImage:
         a = new RS_ActionDrawImage(*document, *view);
+        break;
+
+        // AEC actions:
+        //
+    case RS2::ActionDrawWall:
+        a = new RS_ActionDrawWall(*document, *view);
         break;
 
         // Dimensioning actions:
@@ -1832,6 +1839,10 @@ void QG_ActionHandler::slotDrawHatch() {
 
 void QG_ActionHandler::slotDrawImage() {
     setCurrentAction(RS2::ActionDrawImage);
+}
+
+void QG_ActionHandler::slotDrawWall() {
+    setCurrentAction(RS2::ActionDrawWall);
 }
 
 void QG_ActionHandler::slotDimAligned() {

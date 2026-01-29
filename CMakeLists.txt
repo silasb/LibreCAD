@@ -221,6 +221,7 @@ librecad/src/lib/engine/rs_utility.cpp
 librecad/src/lib/engine/rs_dimaligned.cpp
 librecad/src/lib/engine/rs_dimdiametric.cpp
 librecad/src/lib/engine/rs_dimlinear.cpp
+librecad/src/lib/engine/rs_wall.cpp
 librecad/src/lib/engine/rs_graphic.cpp
 librecad/src/lib/engine/rs_xref.cpp
 librecad/src/lib/engine/rs_units.cpp
@@ -526,6 +527,7 @@ librecad/src/actions/lc_actionlayersexport.cpp
 librecad/src/actions/rs_actiondimaligned.cpp
 librecad/src/actions/rs_actiondimdiametric.cpp
 librecad/src/actions/rs_actiondimlinear.cpp
+librecad/src/actions/rs_actiondrawwall.cpp
 librecad/src/actions/rs_actiondrawarc.cpp
 librecad/src/actions/rs_actiondrawcirclecr.cpp
 librecad/src/actions/rs_actiondrawcircleinscribe.cpp

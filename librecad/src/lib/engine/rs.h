@@ -160,7 +160,8 @@ namespace RS2 {
         EntityOverlayBox,    /**< OverlayBox */
         EntityPreview,    /**< Preview Container */
         EntityPattern,
-        EntityOverlayLine
+        EntityOverlayLine,
+        EntityWall          /**< AEC Wall */
     };
 
 
@@ -314,6 +315,8 @@ namespace RS2 {
         ActionPolylineTrim,
         ActionPolylineEquidistant,
         ActionPolylineSegment,
+
+        ActionDrawWall,
 
         ActionDimAligned,
         ActionDimLinear,

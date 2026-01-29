@@ -799,6 +799,15 @@ void LC_WidgetFactory::createMenus(QMenuBar* menu_bar)
     select_menu->setTearOffEnabled(true);
     select_menu->addActions(select_actions);
 
+    // <[~ AEC ~]>
+
+    QMenu* aec_menu = tools_menu->addMenu(QC_ApplicationWindow::tr("&AEC"));
+    aec_menu->setObjectName("aec_menu");
+    aec_menu->setTearOffEnabled(true);
+    if (a_map.contains("DrawWall")) {
+        aec_menu->addAction(a_map["DrawWall"]);
+    }
+
     // <[~ Dimension ~]>
 
     QMenu* dimension_menu = tools_menu->addMenu(QC_ApplicationWindow::tr("Dime&nsion"));

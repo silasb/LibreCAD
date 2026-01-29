@@ -50,6 +50,7 @@ class RS_Hatch;
 class RS_Image;
 class RS_Leader;
 class RS_Polyline;
+class RS_Wall;
 class DL_WriterA;
 
 /**
@@ -160,6 +161,7 @@ public:
     void writeLeader(RS_Leader* l);
     void writeDimension(RS_Dimension* d);
     void writePolyline(RS_Polyline* p);
+    void writeWall(RS_Wall* w);
 
 /*	void writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,
                 const DRW_Entity& attrib);

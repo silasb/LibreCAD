@@ -52,6 +52,7 @@
 #include "lc_splinepoints.h"
 #include "rs_system.h"
 #include "rs_text.h"
+#include "rs_wall.h"
 #include "rs_graphicview.h"
 #include "rs_dialogfactory.h"
 #include "rs_math.h"
@@ -2156,6 +2157,9 @@ void RS_FilterDXFRW::writeEntity(RS_Entity* e){
     case RS2::EntityImage:
         writeImage((RS_Image*)e);
         break;
+    case RS2::EntityWall:
+        writeWall((RS_Wall*)e);
+        break;
     default:
         break;
     }
@@ -2966,6 +2970,17 @@ void RS_FilterDXFRW::writeImage(RS_Image * i) {
 }
 
 
+
+/**
+ * Writes the given Wall entity to the file.
+ * Phase 1: decomposes to individual lines (no smart round-trip yet).
+ */
+void RS_FilterDXFRW::writeWall(RS_Wall* w) {
+    for (RS_Entity* e = w->firstEntity(RS2::ResolveNone);
+         e; e = w->nextEntity(RS2::ResolveNone)) {
+        writeEntity(e);
+    }
+}
 
 /*void RS_FilterDXFRW::writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,
                                         const DRW_Entity& attrib) {

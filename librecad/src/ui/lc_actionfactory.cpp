@@ -630,6 +630,15 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setObjectName("DrawImage");
     a_map["DrawImage"] = action;
 
+    // <[~ AEC ~]>
+
+    action = new QAction(tr("&Wall"), agm->other);
+    action->setIcon(QIcon(":/icons/wall.svg"));
+    connect(action, SIGNAL(triggered()),
+    action_handler, SLOT(slotDrawWall()));
+    action->setObjectName("DrawWall");
+    a_map["DrawWall"] = action;
+
     // <[~ Dimension ~]>
 
     action = new QAction(tr("&Aligned"), agm->dimension);
