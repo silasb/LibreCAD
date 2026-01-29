@@ -1017,6 +1017,13 @@ RS_Commands::RS_Commands() {
             {{"zoompan", QObject::tr("zoompan", "zoom - pan")}},
             {{"zp", QObject::tr("zp", "zoom - pan")}},
             RS2::ActionZoomPan
+        },
+
+        // aec
+        {
+            {{"drawwall", QObject::tr("drawwall", "drawwall")}},
+            {{"dw", QObject::tr("dw", "drawwall")}},
+            RS2::ActionDrawWall
         }
     };
 
