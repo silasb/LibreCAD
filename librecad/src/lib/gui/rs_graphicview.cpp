@@ -972,6 +972,11 @@ void RS_GraphicView::drawLayer3(RS_Painter *painter) {
 	if (!isPrintPreview()) {
 		drawRelativeZero(painter);
 		drawOverlay(painter);
+
+		// Draw nearby grips (snap targets from unselected entities)
+		for (const auto& grip : nearbyGrips) {
+			painter->drawHandle(toGui(grip), RS_Color(128, 128, 255), 2);
+		}
 	}
 }
 
@@ -1195,7 +1200,11 @@ void RS_GraphicView::drawEntity(RS_Painter *painter, RS_Entity* e, double& patte
 				if (getDeleteMode()) {
                     painter->drawHandle(toGui(s.get(i)), m_colorData->background, sz);
 				} else {
-					painter->drawHandle(toGui(s.get(i)), col, sz);
+					if (hoveredGrip.valid && hoveredGrip.distanceTo(s.get(i)) < 1.0e-6) {
+						painter->drawHandle(toGui(s.get(i)), RS_Color(0, 255, 0), 4);
+					} else {
+						painter->drawHandle(toGui(s.get(i)), col, sz);
+					}
 				}
 			}
 		}

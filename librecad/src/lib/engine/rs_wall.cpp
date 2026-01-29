@@ -74,6 +74,16 @@ RS_VectorSolutions RS_Wall::getRefPoints() const {
     });
 }
 
+RS_Vector RS_Wall::getNearestRef(const RS_Vector& coord,
+                                  double* dist) const {
+    return RS_Entity::getNearestRef(coord, dist);
+}
+
+RS_Vector RS_Wall::getNearestSelectedRef(const RS_Vector& coord,
+                                         double* dist) const {
+    return RS_Entity::getNearestSelectedRef(coord, dist);
+}
+
 void RS_Wall::update() {
     clear();
 

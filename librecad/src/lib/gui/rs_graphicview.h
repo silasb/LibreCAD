@@ -457,6 +457,15 @@ private:
 
     RS2::EntityType typeToSelect = RS2::EntityType::EntityUnknown;
 
+    RS_Vector hoveredGrip{false};
+    std::vector<RS_Vector> nearbyGrips;
+
+public:
+    void setHoveredGrip(const RS_Vector& grip) { hoveredGrip = grip; }
+    RS_Vector getHoveredGrip() const { return hoveredGrip; }
+    void setNearbyGrips(std::vector<RS_Vector> grips) { nearbyGrips = std::move(grips); }
+    void clearNearbyGrips() { nearbyGrips.clear(); }
+
 signals:
     void relative_zero_changed(const RS_Vector&);
     void previous_zoom_state(bool);

@@ -217,10 +217,23 @@ void RS_ActionDefault::mouseMoveEvent(QMouseEvent* e) {
     clearHighLighting();
 
     switch (getStatus()) {
-    case Neutral:
+    case Neutral: {
         deleteSnapper();
         highlightHoveredEntities(e);
+
+        // Check for grip hover on selected entities
+        double dist;
+        RS_Vector ref = container->getNearestSelectedRef(mouse, &dist);
+        if (ref.valid && graphicView->toGuiDX(dist) < 8) {
+            graphicView->setHoveredGrip(ref);
+            graphicView->setMouseCursor(RS2::SizeAllCursor);
+        } else {
+            graphicView->setHoveredGrip(RS_Vector(false));
+            graphicView->setMouseCursor(RS2::ArrowCursor);
+        }
+        graphicView->redraw(RS2::RedrawDrawing);
         break;
+    }
     case Dragging:
         //v2 = graphicView->toGraph(e->x(), e->y());
 		pPoints->v2 = mouse;
@@ -257,7 +270,7 @@ void RS_ActionDefault::mouseMoveEvent(QMouseEvent* e) {
         }
         break;
 
-    case MovingRef:
+    case MovingRef: {
 		pPoints->v2 = snapPoint(e);
 		RS_DIALOGFACTORY->updateCoordinateWidget(pPoints->v2, pPoints->v2 - graphicView->getRelativeZero());
 
@@ -276,8 +289,26 @@ void RS_ActionDefault::mouseMoveEvent(QMouseEvent* e) {
             line->setSelected(true);
         }
 
+        // Collect ref points from nearby unselected entities
+        {
+            double catchRadius = graphicView->toGraphDX(64);
+            std::vector<RS_Vector> nearby;
+            for (auto en : *container) {
+                if (!en || !en->isVisible() || en->isSelected())
+                    continue;
+                RS_VectorSolutions const& refs = en->getRefPoints();
+                for (size_t i = 0; i < refs.getNumber(); ++i) {
+                    if (refs.get(i).distanceTo(mouse) < catchRadius) {
+                        nearby.push_back(refs.get(i));
+                    }
+                }
+            }
+            graphicView->setNearbyGrips(std::move(nearby));
+        }
+
         drawPreview();
         break;
+    }
 
     case Moving:
 		pPoints->v2 = snapPoint(e);
@@ -380,6 +411,7 @@ void RS_ActionDefault::mousePressEvent(QMouseEvent* e) {
 			data.offset = pPoints->v2 - pPoints->v1;
             m.moveRef(data);
             //container->moveSelectedRef(v1, v2-v2);
+            graphicView->clearNearbyGrips();
             setStatus(Neutral);
             RS_DIALOGFACTORY->updateSelectionWidget(
                         container->countSelected(),container->totalSelectedLength());
@@ -391,6 +423,7 @@ void RS_ActionDefault::mousePressEvent(QMouseEvent* e) {
         }
     } else if (e->button()==Qt::RightButton) {
         //cleanup
+        graphicView->clearNearbyGrips();
         setStatus(Neutral);
         e->accept();
     }
@@ -509,7 +542,11 @@ void RS_ActionDefault::updateMouseButtonHints() {
 void RS_ActionDefault::updateMouseCursor() {
     switch (getStatus()) {
     case Neutral:
-        graphicView->setMouseCursor(RS2::ArrowCursor);
+        if (graphicView->getHoveredGrip().valid) {
+            graphicView->setMouseCursor(RS2::SizeAllCursor);
+        } else {
+            graphicView->setMouseCursor(RS2::ArrowCursor);
+        }
         break;
     case Moving:
     case MovingRef:

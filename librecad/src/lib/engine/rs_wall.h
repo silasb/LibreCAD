@@ -85,6 +85,10 @@ public:
     }
 
     RS_VectorSolutions getRefPoints() const override;
+    RS_Vector getNearestRef(const RS_Vector& coord,
+                            double* dist = nullptr) const override;
+    RS_Vector getNearestSelectedRef(const RS_Vector& coord,
+                                    double* dist = nullptr) const override;
 
     void update() override;
 
