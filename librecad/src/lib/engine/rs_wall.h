@@ -68,6 +68,10 @@ public:
         return data;
     }
 
+    void setData(const RS_WallData& d) {
+        data = d;
+    }
+
     RS_Vector getStartpoint() const {
         return data.startpoint;
     }

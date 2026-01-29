@@ -359,6 +359,7 @@ librecad/src/ui/forms/qg_dlghatch.cpp
 librecad/src/ui/forms/qg_dlgimage.cpp
 librecad/src/ui/forms/qg_dlginsert.cpp
 librecad/src/ui/forms/qg_dlgline.cpp
+librecad/src/ui/forms/qg_dlgwall.cpp
 librecad/src/ui/forms/qg_dlgmtext.cpp
 librecad/src/ui/forms/qg_dlgoptionsdrawing.cpp
 librecad/src/ui/forms/qg_dlgoptionsgeneral.cpp
@@ -775,6 +776,7 @@ librecad/src/ui/forms/qg_dlgellipse.ui
 librecad/src/ui/forms/qg_dlghatch.ui
 librecad/src/ui/forms/qg_dlgimage.ui
 librecad/src/ui/forms/qg_dlgline.ui
+librecad/src/ui/forms/qg_dlgwall.ui
 librecad/src/ui/forms/qg_dlgmtext.ui
 librecad/src/ui/forms/qg_dlgoptionsdrawing.ui
 librecad/src/ui/forms/qg_dlgoptionsgeneral.ui

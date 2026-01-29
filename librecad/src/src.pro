@@ -784,6 +784,7 @@ HEADERS += ui/lc_actionfactory.h \
     ui/forms/qg_dlgscale.h \
     ui/forms/qg_dlgspline.h \
     ui/forms/qg_dlgtext.h \
+    ui/forms/qg_dlgwall.h \
     ui/forms/qg_exitdialog.h \
     ui/forms/qg_imageoptions.h \
     ui/forms/qg_insertoptions.h \
@@ -888,6 +889,7 @@ SOURCES += ui/lc_actionfactory.cpp \
     ui/forms/qg_dlgscale.cpp \
     ui/forms/qg_dlgspline.cpp \
     ui/forms/qg_dlgtext.cpp \
+    ui/forms/qg_dlgwall.cpp \
     ui/forms/qg_exitdialog.cpp \
     ui/forms/qg_imageoptions.cpp \
     ui/forms/qg_insertoptions.cpp \
@@ -989,6 +991,7 @@ FORMS = ui/forms/qg_commandwidget.ui \
     ui/forms/qg_dlgscale.ui \
     ui/forms/qg_dlgspline.ui \
     ui/forms/qg_dlgtext.ui \
+    ui/forms/qg_dlgwall.ui \
     ui/forms/qg_exitdialog.ui \
     ui/forms/qg_imageoptions.ui \
     ui/forms/qg_insertoptions.ui \

@@ -60,6 +60,8 @@
 #include "qg_dlgimage.h"
 #include "qg_dlginsert.h"
 #include "qg_dlgline.h"
+#include "qg_dlgwall.h"
+#include "rs_wall.h"
 #include "qg_dlgmirror.h"
 #include "qg_dlgmove.h"
 #include "qg_dlgmoverotate.h"
@@ -1609,8 +1611,14 @@ bool QG_DialogFactory::requestModifyEntityDialog(RS_Entity* entity) {
     }
         break;
 
-    case RS2::EntityWall:
-        // Phase 1: no edit dialog for walls
+    case RS2::EntityWall: {
+        QG_DlgWall dlg(parent);
+        dlg.setWall(*static_cast<RS_Wall*>(entity));
+        if (dlg.exec()) {
+            dlg.updateWall();
+            ret = true;
+        }
+    }
         break;
 
     default:
