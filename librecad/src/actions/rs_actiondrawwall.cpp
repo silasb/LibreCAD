@@ -50,6 +50,8 @@ RS_ActionDrawWall::~RS_ActionDrawWall() = default;
 void RS_ActionDrawWall::init(int status) {
     RS_PreviewActionInterface::init(status);
     startpoint = RS_Vector(false);
+    chainStartpoint = RS_Vector(false);
+    wallCount = 0;
 }
 
 void RS_ActionDrawWall::ensureWallLayer() {
@@ -147,6 +149,8 @@ void RS_ActionDrawWall::coordinateEvent(RS_CoordinateEvent* e) {
     switch (getStatus()) {
     case SetStartpoint:
         startpoint = pos;
+        chainStartpoint = pos;
+        wallCount = 0;
         graphicView->moveRelativeZero(pos);
         setStatus(SetEndpoint);
         break;
@@ -155,6 +159,7 @@ void RS_ActionDrawWall::coordinateEvent(RS_CoordinateEvent* e) {
         if ((pos - startpoint).squared() > RS_TOLERANCE2) {
             graphicView->moveRelativeZero(pos);
             trigger();
+            wallCount++;
             // Continue drawing: start next wall from this endpoint
             startpoint = pos;
         }
@@ -193,6 +198,9 @@ void RS_ActionDrawWall::commandEvent(RS_CommandEvent* e) {
         if (c == tr("thickness") || c == "thickness" || c == "t") {
             setStatus(SetThickness);
             e->accept();
+        } else if (c == tr("close") || c == "close" || c == "c") {
+            close();
+            e->accept();
         }
         break;
     }
@@ -205,6 +213,9 @@ QStringList RS_ActionDrawWall::getAvailableCommands() {
     case SetStartpoint:
     case SetEndpoint:
         cmd += tr("thickness");
+        if (wallCount >= 2) {
+            cmd += command("close");
+        }
         break;
     default:
         break;
@@ -220,10 +231,16 @@ void RS_ActionDrawWall::updateMouseButtonHints() {
             tr("Specify wall start point"),
             tr("Cancel"));
         break;
-    case SetEndpoint:
-        RS_DIALOGFACTORY->updateMouseWidget(
-            tr("Specify wall end point"),
-            tr("Back"));
+    case SetEndpoint: {
+        QString msg = tr("Specify wall end point or [%1]")
+                          .arg(tr("thickness"));
+        if (wallCount >= 2) {
+            msg = tr("Specify wall end point or [%1/%2]")
+                      .arg(tr("thickness"))
+                      .arg(command("close"));
+        }
+        RS_DIALOGFACTORY->updateMouseWidget(msg, tr("Back"));
+    }
         break;
     case SetThickness:
         RS_DIALOGFACTORY->updateMouseWidget(
@@ -247,6 +264,25 @@ void RS_ActionDrawWall::showOptions() {
 void RS_ActionDrawWall::hideOptions() {
     RS_ActionInterface::hideOptions();
     RS_DIALOGFACTORY->requestOptions(this, false);
+}
+
+void RS_ActionDrawWall::close() {
+    if (getStatus() != SetEndpoint) {
+        return;
+    }
+    if (wallCount < 2 || !chainStartpoint.valid) {
+        RS_DIALOGFACTORY->commandMessage(
+            tr("Cannot close sequence of walls: "
+               "Not enough entities defined yet, or already closed."));
+        return;
+    }
+    if ((startpoint - chainStartpoint).squared() <= RS_TOLERANCE2) {
+        return;
+    }
+
+    graphicView->moveRelativeZero(chainStartpoint);
+    trigger();
+    setStatus(SetStartpoint);
 }
 
 // EOF

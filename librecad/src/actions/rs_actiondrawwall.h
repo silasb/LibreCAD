@@ -66,8 +66,11 @@ public:
 
 private:
     void ensureWallLayer();
+    void close();
 
     RS_Vector startpoint;
+    RS_Vector chainStartpoint{false};
+    int wallCount = 0;
     double thickness = 3.5;
     Status lastStatus = SetStartpoint;
 };
