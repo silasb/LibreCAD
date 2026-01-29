@@ -198,7 +198,7 @@ void RS_ActionDrawWall::commandEvent(RS_CommandEvent* e) {
         if (c == tr("thickness") || c == "thickness" || c == "t") {
             setStatus(SetThickness);
             e->accept();
-        } else if (c == tr("close") || c == "close" || c == "c") {
+        } else if (checkCommand("close", c)) {
             close();
             e->accept();
         }
