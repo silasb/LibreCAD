@@ -162,6 +162,7 @@ public:
     void writeDimension(RS_Dimension* d);
     void writePolyline(RS_Polyline* p);
     void writeWall(RS_Wall* w);
+    void addAECWall(const DRW_Line& data);
 
 /*	void writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,
                 const DRW_Entity& attrib);

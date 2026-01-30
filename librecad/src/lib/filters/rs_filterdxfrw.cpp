@@ -53,6 +53,9 @@
 #include "rs_system.h"
 #include "rs_text.h"
 #include "rs_wall.h"
+#include "rs_wallopening.h"
+#include "rs_door.h"
+#include "rs_window.h"
 #include "rs_graphicview.h"
 #include "rs_dialogfactory.h"
 #include "rs_math.h"
@@ -404,6 +407,37 @@ void RS_FilterDXFRW::addPoint(const DRW_Point& data) {
 void RS_FilterDXFRW::addLine(const DRW_Line& data) {
     RS_DEBUG->print("RS_FilterDXF::addLine");
 
+    // Check for LibreCAD_AEC XDATA
+    if (!data.extData.empty()) {
+        // Look for "LibreCAD_AEC" app name
+        bool isAEC = false;
+        int subtype = -1;
+        for (size_t i = 0; i < data.extData.size(); ++i) {
+            auto& v = data.extData[i];
+            if (v->code() == 1001 && v->type() == DRW_Variant::STRING
+                && *v->content.s == "LibreCAD_AEC") {
+                isAEC = true;
+                // Next entry should be subtype (1070)
+                if (i + 1 < data.extData.size()
+                    && data.extData[i+1]->code() == 1070
+                    && data.extData[i+1]->type() == DRW_Variant::INTEGER) {
+                    subtype = data.extData[i+1]->content.i;
+                }
+                break;
+            }
+        }
+        if (isAEC) {
+            if (subtype == 1) {
+                // Wall centerline — reconstruct wall
+                addAECWall(data);
+                return;
+            } else if (subtype == 0) {
+                // Compat geometry — skip (wall will regenerate it)
+                return;
+            }
+        }
+    }
+
     RS_Vector v1(data.basePoint.x, data.basePoint.y);
     RS_Vector v2(data.secPoint.x, data.secPoint.y);
 
@@ -504,6 +538,25 @@ void RS_FilterDXFRW::addCircle(const DRW_Circle& data) {
  */
 void RS_FilterDXFRW::addArc(const DRW_Arc& data) {
     RS_DEBUG->print("RS_FilterDXF::addArc");
+
+    // Check for LibreCAD_AEC compat marker
+    if (!data.extData.empty()) {
+        for (size_t i = 0; i < data.extData.size(); ++i) {
+            auto& v = data.extData[i];
+            if (v->code() == 1001 && v->type() == DRW_Variant::STRING
+                && *v->content.s == "LibreCAD_AEC") {
+                if (i + 1 < data.extData.size()
+                    && data.extData[i+1]->code() == 1070
+                    && data.extData[i+1]->type() == DRW_Variant::INTEGER
+                    && data.extData[i+1]->content.i == 0) {
+                    // Compat geometry — skip
+                    return;
+                }
+                break;
+            }
+        }
+    }
+
     RS_Vector v(data.basePoint.x, data.basePoint.y);
     RS_ArcData d(v, data.radious,
                  data.staangle,
@@ -2089,6 +2142,9 @@ void RS_FilterDXFRW::writeAppId(){
     DRW_AppId ai;
     ai.name ="LibreCad";
     dxfW->writeAppId(&ai);
+    DRW_AppId aec;
+    aec.name = "LibreCAD_AEC";
+    dxfW->writeAppId(&aec);
 }
 
 void RS_FilterDXFRW::writeEntities(){
@@ -2160,6 +2216,16 @@ void RS_FilterDXFRW::writeEntity(RS_Entity* e){
     case RS2::EntityWall:
         writeWall((RS_Wall*)e);
         break;
+    case RS2::EntityDoor:
+    case RS2::EntityWindow: {
+        // Standalone openings (not inside a wall): write their child geometry
+        RS_EntityContainer* ec = static_cast<RS_EntityContainer*>(e);
+        for (RS_Entity* child = ec->firstEntity(RS2::ResolveNone);
+             child; child = ec->nextEntity(RS2::ResolveNone)) {
+            writeEntity(child);
+        }
+        break;
+    }
     default:
         break;
     }
@@ -2976,10 +3042,245 @@ void RS_FilterDXFRW::writeImage(RS_Image * i) {
  * Phase 1: decomposes to individual lines (no smart round-trip yet).
  */
 void RS_FilterDXFRW::writeWall(RS_Wall* w) {
+    // Write centerline as a DRW_Line with XDATA encoding the wall parameters
+    DRW_Line centerline;
+    getEntityAttributes(&centerline, w);
+    centerline.basePoint.x = w->getStartpoint().x;
+    centerline.basePoint.y = w->getStartpoint().y;
+    centerline.secPoint.x = w->getEndpoint().x;
+    centerline.secPoint.y = w->getEndpoint().y;
+
+    auto openings = w->getOpenings();
+
+    // Build XDATA
+    // 1001: appid
+    centerline.extData.push_back(std::make_shared<DRW_Variant>(1001, std::string("LibreCAD_AEC")));
+    // 1070: subtype = 1 (wall)
+    centerline.extData.push_back(std::make_shared<DRW_Variant>(1070, 1));
+    // 1040: thickness
+    centerline.extData.push_back(std::make_shared<DRW_Variant>(1040, w->getThickness()));
+    // 1070: number of openings
+    centerline.extData.push_back(std::make_shared<DRW_Variant>(1070, static_cast<int>(openings.size())));
+
+    for (auto* op : openings) {
+        // 1070: type (2=door, 3=window)
+        int type = (op->rtti() == RS2::EntityDoor) ? 2 : 3;
+        centerline.extData.push_back(std::make_shared<DRW_Variant>(1070, type));
+        // 1000: layer name
+        std::string layerName = "0";
+        RS_Layer* opLayer = op->getLayer(true);
+        if (opLayer) {
+            layerName = opLayer->getName().toStdString();
+        }
+        centerline.extData.push_back(std::make_shared<DRW_Variant>(1000, layerName));
+        // 1040: positionAlongWall
+        centerline.extData.push_back(std::make_shared<DRW_Variant>(1040, op->getPositionAlongWall()));
+        // 1040: width
+        centerline.extData.push_back(std::make_shared<DRW_Variant>(1040, op->getWidth()));
+
+        if (op->rtti() == RS2::EntityDoor) {
+            RS_Door* door = static_cast<RS_Door*>(op);
+            // 1040: swingAngle
+            centerline.extData.push_back(std::make_shared<DRW_Variant>(1040, door->getSwingAngle()));
+            // 1070: swingLeft
+            centerline.extData.push_back(std::make_shared<DRW_Variant>(1070, door->isSwingLeft() ? 1 : 0));
+            // 1070: hingeReversed
+            centerline.extData.push_back(std::make_shared<DRW_Variant>(1070, door->isHingeReversed() ? 1 : 0));
+        }
+    }
+
+    dxfW->writeLine(&centerline);
+
+    // Write decomposed geometry (lines, arcs) with compat XDATA marker
     for (RS_Entity* e = w->firstEntity(RS2::ResolveNone);
          e; e = w->nextEntity(RS2::ResolveNone)) {
-        writeEntity(e);
+        // Skip opening children — they're encoded in the centerline XDATA
+        if (dynamic_cast<RS_WallOpening*>(e)) continue;
+
+        if (e->rtti() == RS2::EntityLine) {
+            DRW_Line line;
+            RS_Line* l = static_cast<RS_Line*>(e);
+            getEntityAttributes(&line, w);  // use wall's attributes
+            line.basePoint.x = l->getStartpoint().x;
+            line.basePoint.y = l->getStartpoint().y;
+            line.secPoint.x = l->getEndpoint().x;
+            line.secPoint.y = l->getEndpoint().y;
+            // Compat marker
+            line.extData.push_back(std::make_shared<DRW_Variant>(1001, std::string("LibreCAD_AEC")));
+            line.extData.push_back(std::make_shared<DRW_Variant>(1070, 0));
+            dxfW->writeLine(&line);
+        } else {
+            writeEntity(e);
+        }
     }
+
+    // Write opening child geometry (arcs, lines from doors/windows) with compat marker
+    for (auto* op : openings) {
+        for (RS_Entity* child = op->firstEntity(RS2::ResolveNone);
+             child; child = op->nextEntity(RS2::ResolveNone)) {
+            if (child->rtti() == RS2::EntityLine) {
+                DRW_Line line;
+                RS_Line* l = static_cast<RS_Line*>(child);
+                getEntityAttributes(&line, op);
+                line.basePoint.x = l->getStartpoint().x;
+                line.basePoint.y = l->getStartpoint().y;
+                line.secPoint.x = l->getEndpoint().x;
+                line.secPoint.y = l->getEndpoint().y;
+                line.extData.push_back(std::make_shared<DRW_Variant>(1001, std::string("LibreCAD_AEC")));
+                line.extData.push_back(std::make_shared<DRW_Variant>(1070, 0));
+                dxfW->writeLine(&line);
+            } else if (child->rtti() == RS2::EntityArc) {
+                DRW_Arc arc;
+                RS_Arc* a = static_cast<RS_Arc*>(child);
+                getEntityAttributes(&arc, op);
+                arc.basePoint.x = a->getCenter().x;
+                arc.basePoint.y = a->getCenter().y;
+                arc.radious = a->getRadius();
+                if (a->isReversed()) {
+                    arc.staangle = a->getAngle2();
+                    arc.endangle = a->getAngle1();
+                } else {
+                    arc.staangle = a->getAngle1();
+                    arc.endangle = a->getAngle2();
+                }
+                arc.extData.push_back(std::make_shared<DRW_Variant>(1001, std::string("LibreCAD_AEC")));
+                arc.extData.push_back(std::make_shared<DRW_Variant>(1070, 0));
+                dxfW->writeArc(&arc);
+            } else {
+                writeEntity(child);
+            }
+        }
+    }
+}
+
+void RS_FilterDXFRW::addAECWall(const DRW_Line& data) {
+    RS_DEBUG->print("RS_FilterDXFRW::addAECWall");
+
+    RS_Vector v1(data.basePoint.x, data.basePoint.y);
+    RS_Vector v2(data.secPoint.x, data.secPoint.y);
+
+    // Parse XDATA: skip past 1001 "LibreCAD_AEC" and 1070 subtype(1)
+    // Then read: 1040 thickness, 1070 numOpenings, then per-opening data
+    double thickness = 6.0;
+    int numOpenings = 0;
+
+    struct OpeningInfo {
+        int type;  // 2=door, 3=window
+        std::string layerName;
+        double positionAlongWall;
+        double width;
+        double swingAngle;
+        bool swingLeft;
+        bool hingeReversed;
+    };
+    std::vector<OpeningInfo> openingInfos;
+
+    // Find the AEC data in extData
+    size_t idx = 0;
+    // Skip to after 1001 "LibreCAD_AEC" and 1070 subtype
+    while (idx < data.extData.size()) {
+        auto& v = data.extData[idx];
+        if (v->code() == 1001 && v->type() == DRW_Variant::STRING
+            && *v->content.s == "LibreCAD_AEC") {
+            idx++; // skip 1001
+            idx++; // skip 1070 subtype
+            break;
+        }
+        idx++;
+    }
+
+    // Read thickness (1040)
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+        thickness = data.extData[idx]->content.d;
+        idx++;
+    }
+
+    // Read number of openings (1070)
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1070) {
+        numOpenings = data.extData[idx]->content.i;
+        idx++;
+    }
+
+    // Read each opening
+    for (int i = 0; i < numOpenings && idx < data.extData.size(); ++i) {
+        OpeningInfo info;
+        info.type = 0;
+        info.layerName = "0";
+        info.positionAlongWall = 0.0;
+        info.width = 36.0;
+        info.swingAngle = M_PI_2;
+        info.swingLeft = true;
+        info.hingeReversed = false;
+
+        // 1070: type
+        if (idx < data.extData.size() && data.extData[idx]->code() == 1070) {
+            info.type = data.extData[idx]->content.i;
+            idx++;
+        }
+        // 1000: layer name
+        if (idx < data.extData.size() && data.extData[idx]->code() == 1000
+            && data.extData[idx]->type() == DRW_Variant::STRING) {
+            info.layerName = *data.extData[idx]->content.s;
+            idx++;
+        }
+        // 1040: positionAlongWall
+        if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+            info.positionAlongWall = data.extData[idx]->content.d;
+            idx++;
+        }
+        // 1040: width
+        if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+            info.width = data.extData[idx]->content.d;
+            idx++;
+        }
+
+        if (info.type == 2) {  // door
+            // 1040: swingAngle
+            if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+                info.swingAngle = data.extData[idx]->content.d;
+                idx++;
+            }
+            // 1070: swingLeft
+            if (idx < data.extData.size() && data.extData[idx]->code() == 1070) {
+                info.swingLeft = (data.extData[idx]->content.i != 0);
+                idx++;
+            }
+            // 1070: hingeReversed
+            if (idx < data.extData.size() && data.extData[idx]->code() == 1070) {
+                info.hingeReversed = (data.extData[idx]->content.i != 0);
+                idx++;
+            }
+        }
+
+        openingInfos.push_back(info);
+    }
+
+    // Create wall
+    RS_WallData wd(v1, v2, thickness);
+    RS_Wall* wall = new RS_Wall(currentContainer, wd);
+    setEntityAttributes(wall, &data);
+
+    // Create openings
+    for (auto& info : openingInfos) {
+        RS_WallOpeningData od(info.positionAlongWall, info.width);
+        if (info.type == 2) {
+            RS_DoorData dd(info.swingAngle, info.swingLeft, info.hingeReversed);
+            RS_Door* door = new RS_Door(wall, od, dd);
+            door->setLayer(QString::fromStdString(info.layerName));
+            door->setPen(wall->getPen());
+            wall->addEntity(door);
+        } else if (info.type == 3) {
+            RS_Window* window = new RS_Window(wall, od);
+            window->setLayer(QString::fromStdString(info.layerName));
+            window->setPen(wall->getPen());
+            wall->addEntity(window);
+        }
+    }
+
+    wall->update();
+
+    if (currentContainer) currentContainer->addEntity(wall);
+    RS_DEBUG->print("RS_FilterDXFRW::addAECWall: OK");
 }
 
 /*void RS_FilterDXFRW::writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,

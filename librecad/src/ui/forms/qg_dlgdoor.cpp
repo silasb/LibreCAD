@@ -76,14 +76,17 @@ void QG_DlgDoor::setDoor(RS_Door& d) {
 }
 
 void QG_DlgDoor::updateDoor() {
-    RS_DoorData dd(
+    RS_WallOpeningData od(
         RS_Math::eval(lePosition->text()),
-        RS_Math::eval(leWidth->text()),
+        RS_Math::eval(leWidth->text())
+    );
+    RS_DoorData dd(
         M_PI_2,
         cbSwingLeft->isChecked(),
         cbHingeReversed->isChecked()
     );
 
+    door->setOpeningData(od);
     door->setData(dd);
     door->setPen(wPen->getPen());
     door->setLayer(cbLayer->currentText());

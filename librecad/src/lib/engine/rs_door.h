@@ -27,23 +27,17 @@
 #define RS_DOOR_H
 
 #include <cmath>
-#include "rs_entitycontainer.h"
+#include "rs_wallopening.h"
 
 /**
- * Holds the data that defines a door entity.
+ * Holds door-specific data (beyond the common opening data).
  */
 struct RS_DoorData {
     RS_DoorData();
-    RS_DoorData(double positionAlongWall,
-                double width,
-                double swingAngle,
+    RS_DoorData(double swingAngle,
                 bool swingLeft,
                 bool hingeReversed = false);
 
-    /** Distance from wall startpoint along centerline */
-    double positionAlongWall = 0.0;
-    /** Opening width */
-    double width = 36.0;
     /** Swing angle in radians (default 90 degrees) */
     double swingAngle = M_PI_2;
     /** Which side of the wall the door swings to */
@@ -62,9 +56,11 @@ std::ostream& operator << (std::ostream& os, const RS_DoorData& dd);
  * The wall's update() method uses door positions to create gaps
  * in the wall offset lines.
  */
-class RS_Door : public RS_EntityContainer {
+class RS_Door : public RS_WallOpening {
 public:
-    RS_Door(RS_EntityContainer* parent, const RS_DoorData& d);
+    RS_Door(RS_EntityContainer* parent,
+            const RS_WallOpeningData& od,
+            const RS_DoorData& d);
     ~RS_Door() override = default;
 
     RS_Entity* clone() const override;
@@ -79,22 +75,6 @@ public:
 
     void setData(const RS_DoorData& d) {
         data = d;
-    }
-
-    double getPositionAlongWall() const {
-        return data.positionAlongWall;
-    }
-
-    void setPositionAlongWall(double p) {
-        data.positionAlongWall = p;
-    }
-
-    double getWidth() const {
-        return data.width;
-    }
-
-    void setWidth(double w) {
-        data.width = w;
     }
 
     double getSwingAngle() const {
@@ -118,9 +98,6 @@ public:
     }
 
     void update() override;
-
-    /** Returns the grip point on the wall centerline at the door position. */
-    RS_Vector getGripPoint() const;
 
     friend std::ostream& operator << (std::ostream& os, const RS_Door& d);
 

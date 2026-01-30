@@ -32,41 +32,34 @@
 #include "rs_debug.h"
 
 RS_DoorData::RS_DoorData()
-    : positionAlongWall(0.0)
-    , width(36.0)
-    , swingAngle(M_PI_2)
+    : swingAngle(M_PI_2)
     , swingLeft(true)
     , hingeReversed(false)
 {
 }
 
-RS_DoorData::RS_DoorData(double _positionAlongWall,
-                         double _width,
-                         double _swingAngle,
+RS_DoorData::RS_DoorData(double _swingAngle,
                          bool _swingLeft,
                          bool _hingeReversed)
-    : positionAlongWall(_positionAlongWall)
-    , width(_width)
-    , swingAngle(_swingAngle)
+    : swingAngle(_swingAngle)
     , swingLeft(_swingLeft)
     , hingeReversed(_hingeReversed)
 {
 }
 
 std::ostream& operator << (std::ostream& os, const RS_DoorData& dd) {
-    os << "(pos=" << dd.positionAlongWall
-       << ",width=" << dd.width
-       << ",swing=" << dd.swingAngle
+    os << "(swing=" << dd.swingAngle
        << ",left=" << dd.swingLeft
        << ",hingeRev=" << dd.hingeReversed << ")";
     return os;
 }
 
-RS_Door::RS_Door(RS_EntityContainer* parent, const RS_DoorData& d)
-    : RS_EntityContainer(parent)
+RS_Door::RS_Door(RS_EntityContainer* parent,
+                 const RS_WallOpeningData& od,
+                 const RS_DoorData& d)
+    : RS_WallOpening(parent, od)
     , data(d)
 {
-    calculateBorders();
 }
 
 RS_Entity* RS_Door::clone() const {
@@ -103,33 +96,24 @@ void RS_Door::update() {
     double wallAngle = wallDir.angle();
     RS_Vector wallUnit = wallDir / wallLength;
 
-    // Hinge point is at one edge of the opening along the wall centerline.
-    // The door opening is centered at positionAlongWall.
-    //
-    // Default (hingeReversed=false):
-    //   swingLeft:  hinge on start side of opening
-    //   swingRight: hinge on end side of opening
-    // Flipped (hingeReversed=true): hinge on the opposite end.
-    double halfWidth = data.width / 2.0;
+    double halfWidth = openingData.width / 2.0;
     RS_Vector hingePoint;
     double closedAngle;
 
     bool hingeOnStartSide = data.swingLeft ^ data.hingeReversed;
 
     if (hingeOnStartSide) {
-        double hingePos = data.positionAlongWall - halfWidth;
+        double hingePos = openingData.positionAlongWall - halfWidth;
         hingePoint = wallStart + wallUnit * hingePos;
-        closedAngle = wallAngle;  // leaf points toward wall endpoint
+        closedAngle = wallAngle;
     } else {
-        double hingePos = data.positionAlongWall + halfWidth;
+        double hingePos = openingData.positionAlongWall + halfWidth;
         hingePoint = wallStart + wallUnit * hingePos;
-        closedAngle = wallAngle + M_PI;  // leaf points toward wall startpoint
+        closedAngle = wallAngle + M_PI;
     }
 
-    // Open position: leaf perpendicular to wall, away from wall body
     double openAngle;
     if (hingeOnStartSide) {
-        // Swing away from wall: left or right depending on swingLeft
         openAngle = data.swingLeft
             ? wallAngle + data.swingAngle
             : wallAngle - data.swingAngle;
@@ -139,35 +123,28 @@ void RS_Door::update() {
             : wallAngle + M_PI - data.swingAngle;
     }
 
-    RS_Vector leafEnd = hingePoint + RS_Vector::polar(data.width, openAngle);
+    RS_Vector leafEnd = hingePoint + RS_Vector::polar(openingData.width, openAngle);
 
-    // Door leaf line (shows the door in open position)
     RS_Line* leaf = new RS_Line(this, hingePoint, leafEnd);
     leaf->setLayer(nullptr);
     addEntity(leaf);
 
-    // Swing arc from closed to open position.
-    // Use the shorter arc between closedAngle and openAngle.
-    // Normalize both to [0, 2*PI) and pick direction for shorter arc.
     double a1 = closedAngle;
     double a2 = openAngle;
-    // Compute CCW sweep from a1 to a2
     double ccwSweep = fmod(a2 - a1 + 4 * M_PI, 2 * M_PI);
     double arcStartAngle, arcEndAngle;
     bool reversed = false;
     if (ccwSweep <= M_PI) {
-        // CCW is the short way
         arcStartAngle = a1;
         arcEndAngle = a2;
         reversed = false;
     } else {
-        // CW is the short way
         arcStartAngle = a2;
         arcEndAngle = a1;
         reversed = false;
     }
 
-    RS_ArcData arcData(hingePoint, data.width,
+    RS_ArcData arcData(hingePoint, openingData.width,
                        arcStartAngle, arcEndAngle, reversed);
     RS_Arc* arc = new RS_Arc(this, arcData);
     arc->setLayer(nullptr);
@@ -176,22 +153,7 @@ void RS_Door::update() {
     calculateBorders();
 }
 
-RS_Vector RS_Door::getGripPoint() const {
-    RS_EntityContainer* parentEntity = getParent();
-    if (!parentEntity || parentEntity->rtti() != RS2::EntityWall)
-        return RS_Vector(false);
-
-    RS_Wall* wall = static_cast<RS_Wall*>(parentEntity);
-    RS_Vector wallStart = wall->getStartpoint();
-    RS_Vector wallEnd = wall->getEndpoint();
-    RS_Vector wallDir = wallEnd - wallStart;
-    double wallLength = wallDir.magnitude();
-    if (wallLength < RS_TOLERANCE) return RS_Vector(false);
-
-    return wallStart + wallDir * (data.positionAlongWall / wallLength);
-}
-
 std::ostream& operator << (std::ostream& os, const RS_Door& d) {
-    os << " Door: " << d.data << "\n";
+    os << " Door: " << d.openingData << " " << d.data << "\n";
     return os;
 }

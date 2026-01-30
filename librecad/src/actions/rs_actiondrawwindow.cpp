@@ -28,6 +28,7 @@
 #include "rs_actiondrawwindow.h"
 #include "rs_wall.h"
 #include "rs_window.h"
+#include "rs_wallopening.h"
 #include "rs_line.h"
 #include "rs_dialogfactory.h"
 #include "rs_graphicview.h"
@@ -124,8 +125,8 @@ void RS_ActionDrawWindow::trigger() {
     RS_Vector mouse = graphicView->getRelativeZero();
     double posAlongWall = projectOnWall(selectedWall, mouse);
 
-    RS_WindowData windowData(posAlongWall, windowWidth);
-    RS_Window* window = new RS_Window(selectedWall, windowData);
+    RS_WallOpeningData openingData(posAlongWall, windowWidth);
+    RS_Window* window = new RS_Window(selectedWall, openingData);
     window->setLayerToActive();
     window->setPenToActive();
     selectedWall->addEntity(window);
@@ -174,8 +175,8 @@ void RS_ActionDrawWindow::mouseMoveEvent(QMouseEvent* e) {
             double pos = projectOnWall(selectedWall, mouse);
 
             // Create a temporary window on the wall to generate preview geometry
-            RS_WindowData tmpData(pos, windowWidth);
-            RS_Window tmpWindow(selectedWall, tmpData);
+            RS_WallOpeningData tmpOD(pos, windowWidth);
+            RS_Window tmpWindow(selectedWall, tmpOD);
             tmpWindow.update();
 
             // Copy the window's generated geometry into the preview

@@ -25,6 +25,7 @@
 #include "qg_dlgwindow.h"
 
 #include "rs_window.h"
+#include "rs_wallopening.h"
 #include "rs_wall.h"
 #include "rs_graphic.h"
 #include "rs_math.h"
@@ -73,12 +74,12 @@ void QG_DlgWindow::setWindow(RS_Window& w) {
 }
 
 void QG_DlgWindow::updateWindow() {
-    RS_WindowData wd(
+    RS_WallOpeningData od(
         RS_Math::eval(lePosition->text()),
         RS_Math::eval(leWidth->text())
     );
 
-    window->setData(wd);
+    window->setOpeningData(od);
     window->setPen(wPen->getPen());
     window->setLayer(cbLayer->currentText());
 

@@ -30,30 +30,9 @@
 #include "rs_line.h"
 #include "rs_debug.h"
 
-RS_WindowData::RS_WindowData()
-    : positionAlongWall(0.0)
-    , width(36.0)
+RS_Window::RS_Window(RS_EntityContainer* parent, const RS_WallOpeningData& d)
+    : RS_WallOpening(parent, d)
 {
-}
-
-RS_WindowData::RS_WindowData(double _positionAlongWall,
-                             double _width)
-    : positionAlongWall(_positionAlongWall)
-    , width(_width)
-{
-}
-
-std::ostream& operator << (std::ostream& os, const RS_WindowData& wd) {
-    os << "(pos=" << wd.positionAlongWall
-       << ",width=" << wd.width << ")";
-    return os;
-}
-
-RS_Window::RS_Window(RS_EntityContainer* parent, const RS_WindowData& d)
-    : RS_EntityContainer(parent)
-    , data(d)
-{
-    calculateBorders();
 }
 
 RS_Entity* RS_Window::clone() const {
@@ -71,7 +50,6 @@ void RS_Window::update() {
         return;
     }
 
-    // Get the parent wall to compute geometry
     RS_EntityContainer* parentEntity = getParent();
     if (!parentEntity) return;
 
@@ -90,25 +68,17 @@ void RS_Window::update() {
     double wallAngle = wallDir.angle();
     RS_Vector wallUnit = wallDir / wallLength;
     double halfThick = wall->getThickness() / 2.0;
-    double halfWidth = data.width / 2.0;
+    double halfWidth = openingData.width / 2.0;
 
-    // Window center point on wall centerline
-    RS_Vector centerPt = wallStart + wallUnit * data.positionAlongWall;
+    RS_Vector openStart = wallStart + wallUnit * (openingData.positionAlongWall - halfWidth);
+    RS_Vector openEnd = wallStart + wallUnit * (openingData.positionAlongWall + halfWidth);
 
-    // Opening edge points on centerline
-    RS_Vector openStart = wallStart + wallUnit * (data.positionAlongWall - halfWidth);
-    RS_Vector openEnd = wallStart + wallUnit * (data.positionAlongWall + halfWidth);
-
-    // Perpendicular offset for glass pane lines (slightly inset from wall faces)
-    // Draw two parallel lines representing the glass, offset by 1/4 of wall thickness
     RS_Vector perp = RS_Vector::polar(halfThick * 0.25, wallAngle + M_PI_2);
 
-    // Glass pane line 1
     RS_Line* glass1 = new RS_Line(this, openStart + perp, openEnd + perp);
     glass1->setLayer(nullptr);
     addEntity(glass1);
 
-    // Glass pane line 2
     RS_Line* glass2 = new RS_Line(this, openStart - perp, openEnd - perp);
     glass2->setLayer(nullptr);
     addEntity(glass2);
@@ -116,22 +86,7 @@ void RS_Window::update() {
     calculateBorders();
 }
 
-RS_Vector RS_Window::getGripPoint() const {
-    RS_EntityContainer* parentEntity = getParent();
-    if (!parentEntity || parentEntity->rtti() != RS2::EntityWall)
-        return RS_Vector(false);
-
-    RS_Wall* wall = static_cast<RS_Wall*>(parentEntity);
-    RS_Vector wallStart = wall->getStartpoint();
-    RS_Vector wallEnd = wall->getEndpoint();
-    RS_Vector wallDir = wallEnd - wallStart;
-    double wallLength = wallDir.magnitude();
-    if (wallLength < RS_TOLERANCE) return RS_Vector(false);
-
-    return wallStart + wallDir * (data.positionAlongWall / wallLength);
-}
-
 std::ostream& operator << (std::ostream& os, const RS_Window& w) {
-    os << " Window: " << w.data << "\n";
+    os << " Window: " << w.getOpeningData() << "\n";
     return os;
 }

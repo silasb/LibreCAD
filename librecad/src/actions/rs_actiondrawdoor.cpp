@@ -28,6 +28,7 @@
 #include "rs_actiondrawdoor.h"
 #include "rs_wall.h"
 #include "rs_door.h"
+#include "rs_wallopening.h"
 #include "rs_line.h"
 #include "rs_arc.h"
 #include "rs_dialogfactory.h"
@@ -125,8 +126,9 @@ void RS_ActionDrawDoor::trigger() {
     RS_Vector mouse = graphicView->getRelativeZero();
     double posAlongWall = projectOnWall(selectedWall, mouse);
 
-    RS_DoorData doorData(posAlongWall, doorWidth, M_PI_2, swingLeft, hingeReversed);
-    RS_Door* door = new RS_Door(selectedWall, doorData);
+    RS_WallOpeningData openingData(posAlongWall, doorWidth);
+    RS_DoorData doorData(M_PI_2, swingLeft, hingeReversed);
+    RS_Door* door = new RS_Door(selectedWall, openingData, doorData);
     door->setLayerToActive();
     door->setPenToActive();
     selectedWall->addEntity(door);
@@ -175,8 +177,9 @@ void RS_ActionDrawDoor::mouseMoveEvent(QMouseEvent* e) {
             double pos = projectOnWall(selectedWall, mouse);
 
             // Create a temporary door on the wall to generate preview geometry
-            RS_DoorData tmpData(pos, doorWidth, M_PI_2, swingLeft, hingeReversed);
-            RS_Door tmpDoor(selectedWall, tmpData);
+            RS_WallOpeningData tmpOD(pos, doorWidth);
+            RS_DoorData tmpData(M_PI_2, swingLeft, hingeReversed);
+            RS_Door tmpDoor(selectedWall, tmpOD, tmpData);
             tmpDoor.update();
 
             // Copy the door's generated geometry into the preview

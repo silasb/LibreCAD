@@ -170,6 +170,7 @@ HEADERS += \
     lib/engine/rs_dimlinear.h \
     lib/engine/rs_dimradial.h \
     lib/engine/rs_wall.h \
+    lib/engine/rs_wallopening.h \
     lib/engine/rs_door.h \
     lib/engine/rs_window.h \
     lib/engine/lc_dimarc.h \
@@ -329,6 +330,7 @@ SOURCES += \
     lib/engine/rs_dimlinear.cpp \
     lib/engine/rs_dimradial.cpp \
     lib/engine/rs_wall.cpp \
+    lib/engine/rs_wallopening.cpp \
     lib/engine/rs_door.cpp \
     lib/engine/rs_window.cpp \
     lib/engine/lc_dimarc.cpp \

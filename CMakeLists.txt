@@ -222,6 +222,7 @@ librecad/src/lib/engine/rs_dimaligned.cpp
 librecad/src/lib/engine/rs_dimdiametric.cpp
 librecad/src/lib/engine/rs_dimlinear.cpp
 librecad/src/lib/engine/rs_wall.cpp
+librecad/src/lib/engine/rs_wallopening.cpp
 librecad/src/lib/engine/rs_door.cpp
 librecad/src/lib/engine/rs_window.cpp
 librecad/src/lib/engine/rs_graphic.cpp

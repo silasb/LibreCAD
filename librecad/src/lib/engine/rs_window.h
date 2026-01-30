@@ -26,23 +26,7 @@
 #ifndef RS_WINDOW_H
 #define RS_WINDOW_H
 
-#include "rs_entitycontainer.h"
-
-/**
- * Holds the data that defines a window entity.
- */
-struct RS_WindowData {
-    RS_WindowData();
-    RS_WindowData(double positionAlongWall,
-                  double width);
-
-    /** Distance from wall startpoint along centerline */
-    double positionAlongWall = 0.0;
-    /** Opening width */
-    double width = 36.0;
-};
-
-std::ostream& operator << (std::ostream& os, const RS_WindowData& wd);
+#include "rs_wallopening.h"
 
 /**
  * Class for AEC window entities.
@@ -52,9 +36,9 @@ std::ostream& operator << (std::ostream& os, const RS_WindowData& wd);
  * The wall's update() method uses window positions to create gaps
  * in the wall offset lines.
  */
-class RS_Window : public RS_EntityContainer {
+class RS_Window : public RS_WallOpening {
 public:
-    RS_Window(RS_EntityContainer* parent, const RS_WindowData& d);
+    RS_Window(RS_EntityContainer* parent, const RS_WallOpeningData& d);
     ~RS_Window() override = default;
 
     RS_Entity* clone() const override;
@@ -63,39 +47,9 @@ public:
         return RS2::EntityWindow;
     }
 
-    RS_WindowData getData() const {
-        return data;
-    }
-
-    void setData(const RS_WindowData& d) {
-        data = d;
-    }
-
-    double getPositionAlongWall() const {
-        return data.positionAlongWall;
-    }
-
-    void setPositionAlongWall(double p) {
-        data.positionAlongWall = p;
-    }
-
-    double getWidth() const {
-        return data.width;
-    }
-
-    void setWidth(double w) {
-        data.width = w;
-    }
-
     void update() override;
 
-    /** Returns the grip point on the wall centerline at the window position. */
-    RS_Vector getGripPoint() const;
-
     friend std::ostream& operator << (std::ostream& os, const RS_Window& w);
-
-protected:
-    RS_WindowData data;
 };
 
 #endif

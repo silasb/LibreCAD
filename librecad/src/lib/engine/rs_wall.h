@@ -29,6 +29,7 @@
 #include <vector>
 #include "rs_entitycontainer.h"
 
+class RS_WallOpening;
 class RS_Door;
 class RS_Window;
 
@@ -110,6 +111,7 @@ public:
                  const RS_Vector& offset) override;
     void moveRef(const RS_Vector& ref, const RS_Vector& offset) override;
 
+    std::vector<RS_WallOpening*> getOpenings() const;
     std::vector<RS_Door*> getDoors() const;
     std::vector<RS_Window*> getWindows() const;
 
