@@ -80,6 +80,7 @@
 #include "rs_actiondrawimage.h"
 #include "rs_actiondrawwall.h"
 #include "rs_actiondrawdoor.h"
+#include "rs_actiondrawwindow.h"
 #include "rs_actiondrawline.h"
 #include "rs_actiondrawlineangle.h"
 #include "rs_actiondrawlinebisector.h"
@@ -671,6 +672,10 @@ RS_ActionInterface* QG_ActionHandler::setCurrentAction(RS2::ActionType id) {
 
     case RS2::ActionDrawDoor:
         a = new RS_ActionDrawDoor(*document, *view);
+        break;
+
+    case RS2::ActionDrawWindow:
+        a = new RS_ActionDrawWindow(*document, *view);
         break;
 
         // Dimensioning actions:
@@ -1852,6 +1857,10 @@ void QG_ActionHandler::slotDrawWall() {
 
 void QG_ActionHandler::slotDrawDoor() {
     setCurrentAction(RS2::ActionDrawDoor);
+}
+
+void QG_ActionHandler::slotDrawWindow() {
+    setCurrentAction(RS2::ActionDrawWindow);
 }
 
 void QG_ActionHandler::slotDimAligned() {

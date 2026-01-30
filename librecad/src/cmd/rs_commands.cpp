@@ -1029,6 +1029,11 @@ RS_Commands::RS_Commands() {
             {{"drawdoor", QObject::tr("drawdoor", "drawdoor")}},
             {{"dd", QObject::tr("dd", "drawdoor")}},
             RS2::ActionDrawDoor
+        },
+        {
+            {{"drawwindow", QObject::tr("drawwindow", "drawwindow")}},
+            {{"dwi", QObject::tr("dwi", "drawwindow")}},
+            RS2::ActionDrawWindow
         }
     };
 

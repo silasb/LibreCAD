@@ -171,6 +171,7 @@ HEADERS += \
     lib/engine/rs_dimradial.h \
     lib/engine/rs_wall.h \
     lib/engine/rs_door.h \
+    lib/engine/rs_window.h \
     lib/engine/lc_dimarc.h \
     lib/engine/rs_document.h \
     lib/engine/rs_ellipse.h \
@@ -329,6 +330,7 @@ SOURCES += \
     lib/engine/rs_dimradial.cpp \
     lib/engine/rs_wall.cpp \
     lib/engine/rs_door.cpp \
+    lib/engine/rs_window.cpp \
     lib/engine/lc_dimarc.cpp \
     lib/engine/rs_document.cpp \
     lib/engine/rs_ellipse.cpp \
@@ -463,6 +465,7 @@ HEADERS += actions/rs_actionblocksadd.h \
     actions/rs_actiondimradial.h \
     actions/rs_actiondrawwall.h \
     actions/rs_actiondrawdoor.h \
+    actions/rs_actiondrawwindow.h \
     actions/lc_actiondimarc.h \
     actions/rs_actiondrawarc.h \
     actions/rs_actiondrawarc3p.h \
@@ -605,6 +608,7 @@ SOURCES += actions/rs_actionblocksadd.cpp \
     actions/rs_actiondimradial.cpp \
     actions/rs_actiondrawwall.cpp \
     actions/rs_actiondrawdoor.cpp \
+    actions/rs_actiondrawwindow.cpp \
     actions/lc_actiondimarc.cpp \
     actions/rs_actiondrawarc.cpp \
     actions/rs_actiondrawarc3p.cpp \
@@ -790,6 +794,7 @@ HEADERS += ui/lc_actionfactory.h \
     ui/forms/qg_dlgtext.h \
     ui/forms/qg_dlgwall.h \
     ui/forms/qg_dlgdoor.h \
+    ui/forms/qg_dlgwindow.h \
     ui/forms/qg_exitdialog.h \
     ui/forms/qg_imageoptions.h \
     ui/forms/qg_insertoptions.h \
@@ -896,6 +901,7 @@ SOURCES += ui/lc_actionfactory.cpp \
     ui/forms/qg_dlgtext.cpp \
     ui/forms/qg_dlgwall.cpp \
     ui/forms/qg_dlgdoor.cpp \
+    ui/forms/qg_dlgwindow.cpp \
     ui/forms/qg_exitdialog.cpp \
     ui/forms/qg_imageoptions.cpp \
     ui/forms/qg_insertoptions.cpp \
@@ -999,6 +1005,7 @@ FORMS = ui/forms/qg_commandwidget.ui \
     ui/forms/qg_dlgtext.ui \
     ui/forms/qg_dlgwall.ui \
     ui/forms/qg_dlgdoor.ui \
+    ui/forms/qg_dlgwindow.ui \
     ui/forms/qg_exitdialog.ui \
     ui/forms/qg_imageoptions.ui \
     ui/forms/qg_insertoptions.ui \

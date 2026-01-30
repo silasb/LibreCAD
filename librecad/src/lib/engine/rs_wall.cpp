@@ -28,6 +28,7 @@
 #include <algorithm>
 #include "rs_wall.h"
 #include "rs_door.h"
+#include "rs_window.h"
 #include "rs_line.h"
 #include "rs_debug.h"
 
@@ -74,10 +75,16 @@ RS_VectorSolutions RS_Wall::getRefPoints() const {
     pts.push_back(data.endpoint);
     pts.push_back((data.startpoint + data.endpoint) / 2.0);
 
-    // Add grip points for each door child
+    // Add grip points for each door/window child
     for (auto e : entities) {
-        if (e && e->rtti() == RS2::EntityDoor && !e->isUndone()) {
+        if (!e || e->isUndone()) continue;
+        if (e->rtti() == RS2::EntityDoor) {
             RS_Vector gp = static_cast<RS_Door*>(e)->getGripPoint();
+            if (gp.valid) {
+                pts.push_back(gp);
+            }
+        } else if (e->rtti() == RS2::EntityWindow) {
+            RS_Vector gp = static_cast<RS_Window*>(e)->getGripPoint();
             if (gp.valid) {
                 pts.push_back(gp);
             }
@@ -107,21 +114,30 @@ std::vector<RS_Door*> RS_Wall::getDoors() const {
     return doors;
 }
 
-void RS_Wall::update() {
-    // Preserve door children — remove only non-door generated geometry
-    QList<RS_Entity*> doorsToKeep;
+std::vector<RS_Window*> RS_Wall::getWindows() const {
+    std::vector<RS_Window*> windows;
     for (auto e : entities) {
-        if (e && e->rtti() == RS2::EntityDoor) {
-            doorsToKeep.append(e);
+        if (e && e->rtti() == RS2::EntityWindow && !e->isUndone()) {
+            windows.push_back(static_cast<RS_Window*>(e));
         }
     }
-    // Remove doors from list so clear() won't delete them
-    for (auto d : doorsToKeep) {
-        entities.removeOne(d);
+    return windows;
+}
+
+void RS_Wall::update() {
+    // Preserve door/window children — remove only generated geometry
+    QList<RS_Entity*> childrenToKeep;
+    for (auto e : entities) {
+        if (e && (e->rtti() == RS2::EntityDoor || e->rtti() == RS2::EntityWindow)) {
+            childrenToKeep.append(e);
+        }
+    }
+    for (auto c : childrenToKeep) {
+        entities.removeOne(c);
     }
     clear();
-    for (auto d : doorsToKeep) {
-        addEntity(d);
+    for (auto c : childrenToKeep) {
+        addEntity(c);
     }
 
     if (isUndone()) {
@@ -182,7 +198,19 @@ void RS_Wall::update() {
         double halfW = door->getWidth() / 2.0;
         double t0 = (pos - halfW) / wallLength;
         double t1 = (pos + halfW) / wallLength;
-        // Clamp to [0, 1]
+        t0 = std::max(0.0, std::min(1.0, t0));
+        t1 = std::max(0.0, std::min(1.0, t1));
+        if (t1 > t0 + RS_TOLERANCE) {
+            gaps.push_back({t0, t1});
+        }
+    }
+
+    auto windows = getWindows();
+    for (auto window : windows) {
+        double pos = window->getPositionAlongWall();
+        double halfW = window->getWidth() / 2.0;
+        double t0 = (pos - halfW) / wallLength;
+        double t1 = (pos + halfW) / wallLength;
         t0 = std::max(0.0, std::min(1.0, t0));
         t1 = std::max(0.0, std::min(1.0, t1));
         if (t1 > t0 + RS_TOLERANCE) {
@@ -293,9 +321,12 @@ void RS_Wall::update() {
         addEntity(cap2);
     }
 
-    // Update door child geometry
+    // Update door and window child geometry
     for (auto door : doors) {
         door->update();
+    }
+    for (auto window : windows) {
+        window->update();
     }
 
     calculateBorders();
@@ -532,28 +563,38 @@ void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
         update();
         updateNeighbors();
     } else {
-        // Check if the ref matches a door grip — slide door along wall
+        // Check if the ref matches a door/window grip — slide along wall
         RS_Vector wallDir = data.endpoint - data.startpoint;
         double wallLength = wallDir.magnitude();
         if (wallLength < RS_TOLERANCE) return;
         RS_Vector wallUnit = wallDir / wallLength;
 
         for (auto e : entities) {
-            if (!e || e->rtti() != RS2::EntityDoor || e->isUndone()) continue;
-            RS_Door* door = static_cast<RS_Door*>(e);
-            RS_Vector gp = door->getGripPoint();
-            if (gp.valid && ref.distanceTo(gp) < 1.0e-4) {
-                // Project offset onto wall direction
-                double slideAmount = offset.x * wallUnit.x + offset.y * wallUnit.y;
-                double newPos = door->getPositionAlongWall() + slideAmount;
-
-                // Clamp so door stays within wall
-                double halfW = door->getWidth() / 2.0;
-                newPos = std::max(halfW, std::min(wallLength - halfW, newPos));
-
-                door->setPositionAlongWall(newPos);
-                update();
-                return;
+            if (!e || e->isUndone()) continue;
+            if (e->rtti() == RS2::EntityDoor) {
+                RS_Door* door = static_cast<RS_Door*>(e);
+                RS_Vector gp = door->getGripPoint();
+                if (gp.valid && ref.distanceTo(gp) < 1.0e-4) {
+                    double slideAmount = offset.x * wallUnit.x + offset.y * wallUnit.y;
+                    double newPos = door->getPositionAlongWall() + slideAmount;
+                    double halfW = door->getWidth() / 2.0;
+                    newPos = std::max(halfW, std::min(wallLength - halfW, newPos));
+                    door->setPositionAlongWall(newPos);
+                    update();
+                    return;
+                }
+            } else if (e->rtti() == RS2::EntityWindow) {
+                RS_Window* window = static_cast<RS_Window*>(e);
+                RS_Vector gp = window->getGripPoint();
+                if (gp.valid && ref.distanceTo(gp) < 1.0e-4) {
+                    double slideAmount = offset.x * wallUnit.x + offset.y * wallUnit.y;
+                    double newPos = window->getPositionAlongWall() + slideAmount;
+                    double halfW = window->getWidth() / 2.0;
+                    newPos = std::max(halfW, std::min(wallLength - halfW, newPos));
+                    window->setPositionAlongWall(newPos);
+                    update();
+                    return;
+                }
             }
         }
     }

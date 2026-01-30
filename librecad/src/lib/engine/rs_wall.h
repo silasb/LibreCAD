@@ -30,6 +30,7 @@
 #include "rs_entitycontainer.h"
 
 class RS_Door;
+class RS_Window;
 
 /**
  * Holds the data that defines a wall entity.
@@ -110,6 +111,7 @@ public:
     void moveRef(const RS_Vector& ref, const RS_Vector& offset) override;
 
     std::vector<RS_Door*> getDoors() const;
+    std::vector<RS_Window*> getWindows() const;
 
     RS_Wall* findNeighborAt(const RS_Vector& point) const;
     void updateNeighbors();

@@ -162,7 +162,8 @@ namespace RS2 {
         EntityPattern,
         EntityOverlayLine,
         EntityWall,         /**< AEC Wall */
-        EntityDoor          /**< AEC Door */
+        EntityDoor,         /**< AEC Door */
+        EntityWindow        /**< AEC Window */
     };
 
 
@@ -319,6 +320,7 @@ namespace RS2 {
 
         ActionDrawWall,
         ActionDrawDoor,
+        ActionDrawWindow,
 
         ActionDimAligned,
         ActionDimLinear,
