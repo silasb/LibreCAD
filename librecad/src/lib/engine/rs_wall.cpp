@@ -259,26 +259,38 @@ void RS_Wall::update() {
         addEntity(lineR);
     }
 
-    // End caps (only where there's no join)
-    if (!hasStartJoin) {
-        // Only draw cap if first segment starts at t=0
-        if (!segments.empty() && segments.front().t0 < RS_TOLERANCE) {
-            RS_Vector sl = (segments.front().t0 < RS_TOLERANCE) ? startLeft
-                : (data.startpoint + dir * segments.front().t0 + perp);
-            RS_Vector sr = (segments.front().t0 < RS_TOLERANCE) ? startRight
-                : (data.startpoint + dir * segments.front().t0 - perp);
-            RS_Line* cap1 = new RS_Line(this, sr, sl);
-            cap1->setLayer(nullptr);
-            addEntity(cap1);
-        }
+    // End caps (only where there's no join and no door at the edge)
+    bool doorAtStart = !merged.empty() && merged.front().t0 < RS_TOLERANCE;
+    bool doorAtEnd = !merged.empty() && merged.back().t1 > 1.0 - RS_TOLERANCE;
+
+    RS_DEBUG->print("RS_Wall::update id=%lu: hasStartJoin=%d hasEndJoin=%d doorAtStart=%d doorAtEnd=%d neighborStart=%p neighborEnd=%p start=(%f,%f) end=(%f,%f)",
+                    getId(), hasStartJoin, hasEndJoin, doorAtStart, doorAtEnd,
+                    (void*)neighborStart, (void*)neighborEnd,
+                    data.startpoint.x, data.startpoint.y,
+                    data.endpoint.x, data.endpoint.y);
+    if (neighborStart) {
+        RS_DEBUG->print("  neighborStart id=%lu start=(%f,%f) end=(%f,%f)",
+                        neighborStart->getId(),
+                        neighborStart->getStartpoint().x, neighborStart->getStartpoint().y,
+                        neighborStart->getEndpoint().x, neighborStart->getEndpoint().y);
+    }
+    if (neighborEnd) {
+        RS_DEBUG->print("  neighborEnd id=%lu start=(%f,%f) end=(%f,%f)",
+                        neighborEnd->getId(),
+                        neighborEnd->getStartpoint().x, neighborEnd->getStartpoint().y,
+                        neighborEnd->getEndpoint().x, neighborEnd->getEndpoint().y);
     }
 
-    if (!hasEndJoin) {
-        if (!segments.empty() && segments.back().t1 > 1.0 - RS_TOLERANCE) {
-            RS_Line* cap2 = new RS_Line(this, endRight, endLeft);
-            cap2->setLayer(nullptr);
-            addEntity(cap2);
-        }
+    if (!hasStartJoin && !doorAtStart) {
+        RS_Line* cap1 = new RS_Line(this, startRight, startLeft);
+        cap1->setLayer(nullptr);
+        addEntity(cap1);
+    }
+
+    if (!hasEndJoin && !doorAtEnd) {
+        RS_Line* cap2 = new RS_Line(this, endRight, endLeft);
+        cap2->setLayer(nullptr);
+        addEntity(cap2);
     }
 
     // Update door child geometry
@@ -303,6 +315,11 @@ RS_Wall* RS_Wall::findNeighborAt(const RS_Vector& point) const {
 
         // Must be on same layer
         if (getLayer() != other->getLayer()) continue;
+
+        // During moveRef, both the original wall and its clone exist
+        // in the container momentarily. The original is still selected.
+        // Skip selected walls to avoid false neighbor detection.
+        if (other->isSelected()) continue;
 
         if (other->getStartpoint().distanceTo(point) < RS_TOLERANCE ||
             other->getEndpoint().distanceTo(point) < RS_TOLERANCE) {
@@ -444,8 +461,8 @@ void RS_Wall::move(const RS_Vector& offset) {
     updateNeighbors();  // update former neighbors before moving
     data.startpoint.move(offset);
     data.endpoint.move(offset);
-    updateNeighbors();  // update new neighbors after moving
     update();
+    updateNeighbors();  // update new neighbors after moving
 }
 
 void RS_Wall::rotate(const RS_Vector& center, const double& angle) {
@@ -454,16 +471,16 @@ void RS_Wall::rotate(const RS_Vector& center, const double& angle) {
     RS_Vector angleVector(angle);
     data.startpoint.rotate(center, angleVector);
     data.endpoint.rotate(center, angleVector);
-    updateNeighbors();
     update();
+    updateNeighbors();
 }
 
 void RS_Wall::rotate(const RS_Vector& center, const RS_Vector& angleVector) {
     updateNeighbors();
     data.startpoint.rotate(center, angleVector);
     data.endpoint.rotate(center, angleVector);
-    updateNeighbors();
     update();
+    updateNeighbors();
 }
 
 void RS_Wall::scale(const RS_Vector& center, const RS_Vector& factor) {
@@ -471,16 +488,16 @@ void RS_Wall::scale(const RS_Vector& center, const RS_Vector& factor) {
     data.startpoint.scale(center, factor);
     data.endpoint.scale(center, factor);
     data.thickness *= (fabs(factor.x) + fabs(factor.y)) / 2.0;
-    updateNeighbors();
     update();
+    updateNeighbors();
 }
 
 void RS_Wall::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2) {
     updateNeighbors();
     data.startpoint.mirror(axisPoint1, axisPoint2);
     data.endpoint.mirror(axisPoint1, axisPoint2);
-    updateNeighbors();
     update();
+    updateNeighbors();
 }
 
 void RS_Wall::stretch(const RS_Vector& firstCorner,
@@ -497,8 +514,8 @@ void RS_Wall::stretch(const RS_Vector& firstCorner,
         if (data.endpoint.isInWindow(firstCorner, secondCorner)) {
             data.endpoint.move(offset);
         }
-        updateNeighbors();
         update();
+        updateNeighbors();
     }
 }
 
@@ -507,13 +524,13 @@ void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
     if (ref.distanceTo(data.startpoint) < 1.0e-4) {
         updateNeighbors();
         data.startpoint += offset;
-        updateNeighbors();
         update();
+        updateNeighbors();
     } else if (ref.distanceTo(data.endpoint) < 1.0e-4) {
         updateNeighbors();
         data.endpoint += offset;
-        updateNeighbors();
         update();
+        updateNeighbors();
     } else {
         // Check if the ref matches a door grip — slide door along wall
         RS_Vector wallDir = data.endpoint - data.startpoint;
