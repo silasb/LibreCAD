@@ -161,7 +161,8 @@ namespace RS2 {
         EntityPreview,    /**< Preview Container */
         EntityPattern,
         EntityOverlayLine,
-        EntityWall          /**< AEC Wall */
+        EntityWall,         /**< AEC Wall */
+        EntityDoor          /**< AEC Door */
     };
 
 
@@ -317,6 +318,7 @@ namespace RS2 {
         ActionPolylineSegment,
 
         ActionDrawWall,
+        ActionDrawDoor,
 
         ActionDimAligned,
         ActionDimLinear,

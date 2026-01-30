@@ -25,7 +25,9 @@
 
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 #include "rs_wall.h"
+#include "rs_door.h"
 #include "rs_line.h"
 #include "rs_debug.h"
 
@@ -67,11 +69,22 @@ RS_Entity* RS_Wall::clone() const {
 }
 
 RS_VectorSolutions RS_Wall::getRefPoints() const {
-    return RS_VectorSolutions({
-        data.startpoint,
-        data.endpoint,
-        (data.startpoint + data.endpoint) / 2.0
-    });
+    std::vector<RS_Vector> pts;
+    pts.push_back(data.startpoint);
+    pts.push_back(data.endpoint);
+    pts.push_back((data.startpoint + data.endpoint) / 2.0);
+
+    // Add grip points for each door child
+    for (auto e : entities) {
+        if (e && e->rtti() == RS2::EntityDoor && !e->isUndone()) {
+            RS_Vector gp = static_cast<RS_Door*>(e)->getGripPoint();
+            if (gp.valid) {
+                pts.push_back(gp);
+            }
+        }
+    }
+
+    return RS_VectorSolutions(std::move(pts));
 }
 
 RS_Vector RS_Wall::getNearestRef(const RS_Vector& coord,
@@ -84,8 +97,32 @@ RS_Vector RS_Wall::getNearestSelectedRef(const RS_Vector& coord,
     return RS_Entity::getNearestSelectedRef(coord, dist);
 }
 
+std::vector<RS_Door*> RS_Wall::getDoors() const {
+    std::vector<RS_Door*> doors;
+    for (auto e : entities) {
+        if (e && e->rtti() == RS2::EntityDoor && !e->isUndone()) {
+            doors.push_back(static_cast<RS_Door*>(e));
+        }
+    }
+    return doors;
+}
+
 void RS_Wall::update() {
+    // Preserve door children — remove only non-door generated geometry
+    QList<RS_Entity*> doorsToKeep;
+    for (auto e : entities) {
+        if (e && e->rtti() == RS2::EntityDoor) {
+            doorsToKeep.append(e);
+        }
+    }
+    // Remove doors from list so clear() won't delete them
+    for (auto d : doorsToKeep) {
+        entities.removeOne(d);
+    }
     clear();
+    for (auto d : doorsToKeep) {
+        addEntity(d);
+    }
 
     if (isUndone()) {
         return;
@@ -93,8 +130,12 @@ void RS_Wall::update() {
 
     double halfThick = data.thickness / 2.0;
     RS_Vector dir = data.endpoint - data.startpoint;
+    double wallLength = dir.magnitude();
+    if (wallLength < RS_TOLERANCE) return;
+
     double angle = dir.angle();
     RS_Vector perp = RS_Vector::polar(halfThick, angle + M_PI_2);
+    RS_Vector wallUnit = dir / wallLength;
 
     // Raw offset corner points
     RS_Vector startLeft = data.startpoint + perp;
@@ -129,26 +170,120 @@ void RS_Wall::update() {
         }
     }
 
-    // Two offset lines along the wall
-    RS_Line* line1 = new RS_Line(this, startLeft, endLeft);
-    line1->setLayer(nullptr);
-    addEntity(line1);
+    // Collect door gaps as parametric intervals [t_start, t_end] along wall
+    struct Gap {
+        double t0, t1;
+    };
+    std::vector<Gap> gaps;
 
-    RS_Line* line2 = new RS_Line(this, startRight, endRight);
-    line2->setLayer(nullptr);
-    addEntity(line2);
+    auto doors = getDoors();
+    for (auto door : doors) {
+        double pos = door->getPositionAlongWall();
+        double halfW = door->getWidth() / 2.0;
+        double t0 = (pos - halfW) / wallLength;
+        double t1 = (pos + halfW) / wallLength;
+        // Clamp to [0, 1]
+        t0 = std::max(0.0, std::min(1.0, t0));
+        t1 = std::max(0.0, std::min(1.0, t1));
+        if (t1 > t0 + RS_TOLERANCE) {
+            gaps.push_back({t0, t1});
+        }
+    }
+
+    // Sort gaps by t0
+    std::sort(gaps.begin(), gaps.end(), [](const Gap& a, const Gap& b) {
+        return a.t0 < b.t0;
+    });
+
+    // Merge overlapping gaps
+    std::vector<Gap> merged;
+    for (auto& g : gaps) {
+        if (!merged.empty() && g.t0 <= merged.back().t1 + RS_TOLERANCE) {
+            merged.back().t1 = std::max(merged.back().t1, g.t1);
+        } else {
+            merged.push_back(g);
+        }
+    }
+
+    // Build solid segments [0..gap0.t0], [gap0.t1..gap1.t0], ... [lastGap.t1..1]
+    struct Segment {
+        double t0, t1;
+    };
+    std::vector<Segment> segments;
+    double cursor = 0.0;
+    for (auto& g : merged) {
+        if (g.t0 > cursor + RS_TOLERANCE) {
+            segments.push_back({cursor, g.t0});
+        }
+        cursor = g.t1;
+    }
+    if (cursor < 1.0 - RS_TOLERANCE) {
+        segments.push_back({cursor, 1.0});
+    }
+
+    // If no doors, single segment [0,1]
+    if (segments.empty() && merged.empty()) {
+        segments.push_back({0.0, 1.0});
+    }
+
+    // Generate offset lines for each segment
+    for (auto& seg : segments) {
+        // Interpolate left/right offset points at segment boundaries
+        // For joined endpoints (t=0 or t=1), use the join-adjusted points
+        RS_Vector segStartLeft, segStartRight, segEndLeft, segEndRight;
+
+        if (seg.t0 < RS_TOLERANCE) {
+            segStartLeft = startLeft;
+            segStartRight = startRight;
+        } else {
+            RS_Vector pt = data.startpoint + dir * seg.t0;
+            segStartLeft = pt + perp;
+            segStartRight = pt - perp;
+        }
+
+        if (seg.t1 > 1.0 - RS_TOLERANCE) {
+            segEndLeft = endLeft;
+            segEndRight = endRight;
+        } else {
+            RS_Vector pt = data.startpoint + dir * seg.t1;
+            segEndLeft = pt + perp;
+            segEndRight = pt - perp;
+        }
+
+        RS_Line* lineL = new RS_Line(this, segStartLeft, segEndLeft);
+        lineL->setLayer(nullptr);
+        addEntity(lineL);
+
+        RS_Line* lineR = new RS_Line(this, segStartRight, segEndRight);
+        lineR->setLayer(nullptr);
+        addEntity(lineR);
+    }
 
     // End caps (only where there's no join)
     if (!hasStartJoin) {
-        RS_Line* cap1 = new RS_Line(this, startRight, startLeft);
-        cap1->setLayer(nullptr);
-        addEntity(cap1);
+        // Only draw cap if first segment starts at t=0
+        if (!segments.empty() && segments.front().t0 < RS_TOLERANCE) {
+            RS_Vector sl = (segments.front().t0 < RS_TOLERANCE) ? startLeft
+                : (data.startpoint + dir * segments.front().t0 + perp);
+            RS_Vector sr = (segments.front().t0 < RS_TOLERANCE) ? startRight
+                : (data.startpoint + dir * segments.front().t0 - perp);
+            RS_Line* cap1 = new RS_Line(this, sr, sl);
+            cap1->setLayer(nullptr);
+            addEntity(cap1);
+        }
     }
 
     if (!hasEndJoin) {
-        RS_Line* cap2 = new RS_Line(this, endRight, endLeft);
-        cap2->setLayer(nullptr);
-        addEntity(cap2);
+        if (!segments.empty() && segments.back().t1 > 1.0 - RS_TOLERANCE) {
+            RS_Line* cap2 = new RS_Line(this, endRight, endLeft);
+            cap2->setLayer(nullptr);
+            addEntity(cap2);
+        }
+    }
+
+    // Update door child geometry
+    for (auto door : doors) {
+        door->update();
     }
 
     calculateBorders();
@@ -368,7 +503,7 @@ void RS_Wall::stretch(const RS_Vector& firstCorner,
 }
 
 void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
-      RS_DEBUG->print("silas - moveref");
+    RS_DEBUG->print("silas - moveref");
     if (ref.distanceTo(data.startpoint) < 1.0e-4) {
         updateNeighbors();
         data.startpoint += offset;
@@ -379,6 +514,31 @@ void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
         data.endpoint += offset;
         updateNeighbors();
         update();
+    } else {
+        // Check if the ref matches a door grip — slide door along wall
+        RS_Vector wallDir = data.endpoint - data.startpoint;
+        double wallLength = wallDir.magnitude();
+        if (wallLength < RS_TOLERANCE) return;
+        RS_Vector wallUnit = wallDir / wallLength;
+
+        for (auto e : entities) {
+            if (!e || e->rtti() != RS2::EntityDoor || e->isUndone()) continue;
+            RS_Door* door = static_cast<RS_Door*>(e);
+            RS_Vector gp = door->getGripPoint();
+            if (gp.valid && ref.distanceTo(gp) < 1.0e-4) {
+                // Project offset onto wall direction
+                double slideAmount = offset.x * wallUnit.x + offset.y * wallUnit.y;
+                double newPos = door->getPositionAlongWall() + slideAmount;
+
+                // Clamp so door stays within wall
+                double halfW = door->getWidth() / 2.0;
+                newPos = std::max(halfW, std::min(wallLength - halfW, newPos));
+
+                door->setPositionAlongWall(newPos);
+                update();
+                return;
+            }
+        }
     }
 }
 

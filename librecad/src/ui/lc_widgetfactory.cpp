@@ -807,6 +807,9 @@ void LC_WidgetFactory::createMenus(QMenuBar* menu_bar)
     if (a_map.contains("DrawWall")) {
         aec_menu->addAction(a_map["DrawWall"]);
     }
+    if (a_map.contains("DrawDoor")) {
+        aec_menu->addAction(a_map["DrawDoor"]);
+    }
 
     // <[~ Dimension ~]>
 

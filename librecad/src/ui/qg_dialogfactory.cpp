@@ -61,7 +61,9 @@
 #include "qg_dlginsert.h"
 #include "qg_dlgline.h"
 #include "qg_dlgwall.h"
+#include "qg_dlgdoor.h"
 #include "rs_wall.h"
+#include "rs_door.h"
 #include "qg_dlgmirror.h"
 #include "qg_dlgmove.h"
 #include "qg_dlgmoverotate.h"
@@ -1616,6 +1618,16 @@ bool QG_DialogFactory::requestModifyEntityDialog(RS_Entity* entity) {
         dlg.setWall(*static_cast<RS_Wall*>(entity));
         if (dlg.exec()) {
             dlg.updateWall();
+            ret = true;
+        }
+    }
+        break;
+
+    case RS2::EntityDoor: {
+        QG_DlgDoor dlg(parent);
+        dlg.setDoor(*static_cast<RS_Door*>(entity));
+        if (dlg.exec()) {
+            dlg.updateDoor();
             ret = true;
         }
     }

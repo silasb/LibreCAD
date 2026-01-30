@@ -222,6 +222,7 @@ librecad/src/lib/engine/rs_dimaligned.cpp
 librecad/src/lib/engine/rs_dimdiametric.cpp
 librecad/src/lib/engine/rs_dimlinear.cpp
 librecad/src/lib/engine/rs_wall.cpp
+librecad/src/lib/engine/rs_door.cpp
 librecad/src/lib/engine/rs_graphic.cpp
 librecad/src/lib/engine/rs_xref.cpp
 librecad/src/lib/engine/rs_units.cpp
@@ -360,6 +361,7 @@ librecad/src/ui/forms/qg_dlgimage.cpp
 librecad/src/ui/forms/qg_dlginsert.cpp
 librecad/src/ui/forms/qg_dlgline.cpp
 librecad/src/ui/forms/qg_dlgwall.cpp
+librecad/src/ui/forms/qg_dlgdoor.cpp
 librecad/src/ui/forms/qg_dlgmtext.cpp
 librecad/src/ui/forms/qg_dlgoptionsdrawing.cpp
 librecad/src/ui/forms/qg_dlgoptionsgeneral.cpp
@@ -529,6 +531,7 @@ librecad/src/actions/rs_actiondimaligned.cpp
 librecad/src/actions/rs_actiondimdiametric.cpp
 librecad/src/actions/rs_actiondimlinear.cpp
 librecad/src/actions/rs_actiondrawwall.cpp
+librecad/src/actions/rs_actiondrawdoor.cpp
 librecad/src/actions/rs_actiondrawarc.cpp
 librecad/src/actions/rs_actiondrawcirclecr.cpp
 librecad/src/actions/rs_actiondrawcircleinscribe.cpp
@@ -777,6 +780,7 @@ librecad/src/ui/forms/qg_dlghatch.ui
 librecad/src/ui/forms/qg_dlgimage.ui
 librecad/src/ui/forms/qg_dlgline.ui
 librecad/src/ui/forms/qg_dlgwall.ui
+librecad/src/ui/forms/qg_dlgdoor.ui
 librecad/src/ui/forms/qg_dlgmtext.ui
 librecad/src/ui/forms/qg_dlgoptionsdrawing.ui
 librecad/src/ui/forms/qg_dlgoptionsgeneral.ui

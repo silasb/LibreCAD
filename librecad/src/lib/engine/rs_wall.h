@@ -26,7 +26,10 @@
 #ifndef RS_WALL_H
 #define RS_WALL_H
 
+#include <vector>
 #include "rs_entitycontainer.h"
+
+class RS_Door;
 
 /**
  * Holds the data that defines a wall entity.
@@ -105,6 +108,8 @@ public:
                  const RS_Vector& secondCorner,
                  const RS_Vector& offset) override;
     void moveRef(const RS_Vector& ref, const RS_Vector& offset) override;
+
+    std::vector<RS_Door*> getDoors() const;
 
     RS_Wall* findNeighborAt(const RS_Vector& point) const;
     void updateNeighbors();

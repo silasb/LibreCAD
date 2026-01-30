@@ -639,6 +639,12 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setObjectName("DrawWall");
     a_map["DrawWall"] = action;
 
+    action = new QAction(tr("&Door"), agm->other);
+    connect(action, SIGNAL(triggered()),
+    action_handler, SLOT(slotDrawDoor()));
+    action->setObjectName("DrawDoor");
+    a_map["DrawDoor"] = action;
+
     // <[~ Dimension ~]>
 
     action = new QAction(tr("&Aligned"), agm->dimension);

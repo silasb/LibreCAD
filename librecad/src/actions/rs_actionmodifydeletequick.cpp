@@ -31,6 +31,8 @@
 #include "rs_dialogfactory.h"
 #include "rs_graphicview.h"
 #include "rs_debug.h"
+#include "rs_wall.h"
+#include "rs_door.h"
 
 
 
@@ -63,6 +65,13 @@ void RS_ActionModifyDeleteQuick::trigger() {
                 document->startUndoCycle();
                 document->addUndoable(en);
                 document->endUndoCycle();
+            }
+
+            // If a door was deleted, update the parent wall
+            if (en->rtti() == RS2::EntityDoor &&
+                parent->rtti() == RS2::EntityWall) {
+                static_cast<RS_Wall*>(parent)->update();
+                graphicView->redraw(RS2::RedrawDrawing);
             }
         }
 

@@ -57,6 +57,8 @@
 #include "rs_graphic.h"
 #include "rs_insert.h"
 #include "rs_math.h"
+#include "rs_wall.h"
+#include "rs_door.h"
 #include "rs_modification.h"
 #include "rs_painterqt.h"
 #include "rs_settings.h"

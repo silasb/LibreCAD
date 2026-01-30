@@ -31,6 +31,8 @@
 #include "rs_dialogfactory.h"
 #include "rs_graphicview.h"
 #include "rs_debug.h"
+#include "rs_wall.h"
+#include "rs_door.h"
 
 
 
@@ -52,6 +54,16 @@ void RS_ActionModifyEntity::setDisplaySelected(bool highlighted)
 
 void RS_ActionModifyEntity::trigger() {
     if (en != nullptr) {
+        // Doors are children of walls — modify in-place rather than
+        // using the clone-and-replace pattern which would break the
+        // parent–child relationship.
+        if (en->rtti() == RS2::EntityDoor) {
+            if (RS_DIALOGFACTORY->requestModifyEntityDialog(en)) {
+                graphicView->redraw(RS2::RedrawDrawing);
+            }
+            return;
+        }
+
         std::unique_ptr<RS_Entity> clone{en->clone()};
         bool selected = en->isSelected();
         // RAII style: restore the highlighted status
