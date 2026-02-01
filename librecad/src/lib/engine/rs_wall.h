@@ -111,6 +111,8 @@ public:
                  const RS_Vector& offset) override;
     void moveRef(const RS_Vector& ref, const RS_Vector& offset) override;
 
+    void undoStateChanged(bool undone) override;
+
     std::vector<RS_WallOpening*> getOpenings() const;
     std::vector<RS_Door*> getDoors() const;
     std::vector<RS_Window*> getWindows() const;

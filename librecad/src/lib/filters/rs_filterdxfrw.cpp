@@ -220,6 +220,13 @@ bool RS_FilterDXFRW::fileImport(RS_Graphic& g, const QString& file, RS2::FormatT
     RS_DEBUG->print("RS_FilterDXFRW::fileImport: updating inserts");
     graphic->updateInserts();
 
+    // Re-update all walls so neighbor joins are computed now that all walls are loaded
+    for (auto e : *graphic) {
+        if (e && e->rtti() == RS2::EntityWall && !e->isUndone()) {
+            static_cast<RS_Wall*>(e)->update();
+        }
+    }
+
     RS_DEBUG->print("RS_FilterDXFRW::fileImport OK");
 
     return true;

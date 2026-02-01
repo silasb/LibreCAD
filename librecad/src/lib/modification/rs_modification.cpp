@@ -2122,6 +2122,16 @@ void RS_Modification::addNewEntities(std::vector<RS_Entity*>& addList)
         }
     }
 
+    // Re-update walls and their neighbors now that all entities are parented
+    for (RS_Entity* e: addList) {
+        if (e && e->rtti() == RS2::EntityWall && !e->isUndone()) {
+            bool wasSelected = e->isSelected();
+            static_cast<RS_Wall*>(e)->update();
+            static_cast<RS_Wall*>(e)->updateNeighbors();
+            if (wasSelected) e->setSelected(true);
+        }
+    }
+
     container->calculateBorders();
 
     if (graphicView) {

@@ -337,8 +337,6 @@ RS_Wall* RS_Wall::findNeighborAt(const RS_Vector& point) const {
         // Must be on same layer
         if (getLayer() != other->getLayer()) continue;
 
-        if (other->isSelected()) continue;
-
         if (other->getStartpoint().distanceTo(point) < RS_TOLERANCE ||
             other->getEndpoint().distanceTo(point) < RS_TOLERANCE) {
             return other;
@@ -392,45 +390,18 @@ void RS_Wall::computeJoinPoints(const RS_Wall* neighbor,
     RS_Vector intRL = lineIntersect(aRight1, aRight2, bLeft1, bLeft2);
     RS_Vector intRR = lineIntersect(aRight1, aRight2, bRight1, bRight2);
 
-    double distSame = 1e20, distCross = 1e20;
-    if (intLL.valid && intRR.valid)
-        distSame = intLL.distanceTo(sharedPoint) + intRR.distanceTo(sharedPoint);
-    if (intLR.valid && intRL.valid)
-        distCross = intLR.distanceTo(sharedPoint) + intRL.distanceTo(sharedPoint);
-
-    bool useSame;
-    if (fabs(distSame - distCross) > RS_TOLERANCE) {
-        useSame = (distSame < distCross);
-    } else {
-        bool sharedIsMyEnd = (data.endpoint.distanceTo(sharedPoint) < RS_TOLERANCE);
-        bool sharedIsNeighborEnd = (neighbor->getEndpoint().distanceTo(sharedPoint) < RS_TOLERANCE);
-        RS_Vector awayMe = sharedIsMyEnd ? (data.startpoint - data.endpoint)
-                                         : (data.endpoint - data.startpoint);
-        RS_Vector awayNb = sharedIsNeighborEnd ? (neighbor->getStartpoint() - neighbor->getEndpoint())
-                                               : (neighbor->getEndpoint() - neighbor->getStartpoint());
-
-        double angleMe = awayMe.angle();
-        double angleNb = awayNb.angle();
-        RS_Vector first, second;
-        if (angleMe < angleNb) {
-            first = awayMe;
-            second = awayNb;
-        } else {
-            first = awayNb;
-            second = awayMe;
-        }
-        double awayCross = first.x * second.y - first.y * second.x;
-
-        useSame = (awayCross < 0);
-    }
-
-    if (useSame) {
+    // Always use "same" pairing (A-left∩B-left, A-right∩B-right).
+    // "Cross" pairing causes wall outlines to cross over at the corner
+    // because the two walls disagree on which point is left vs right.
+    if (intLL.valid && intRR.valid) {
         leftPt = intLL;
         rightPt = intRR;
-    } else {
-        leftPt = intLR;
-        rightPt = intRL;
     }
+}
+
+void RS_Wall::undoStateChanged(bool undone) {
+    RS_Entity::undoStateChanged(undone);
+    updateNeighbors();
 }
 
 void RS_Wall::updateNeighbors() {
@@ -455,47 +426,35 @@ void RS_Wall::updateNeighbors() {
 }
 
 void RS_Wall::move(const RS_Vector& offset) {
-    RS_DEBUG->print("silas - move");
-    updateNeighbors();  // update former neighbors before moving
     data.startpoint.move(offset);
     data.endpoint.move(offset);
     update();
-    updateNeighbors();  // update new neighbors after moving
 }
 
 void RS_Wall::rotate(const RS_Vector& center, const double& angle) {
-      RS_DEBUG->print("silas - rotate");
-    updateNeighbors();
     RS_Vector angleVector(angle);
     data.startpoint.rotate(center, angleVector);
     data.endpoint.rotate(center, angleVector);
     update();
-    updateNeighbors();
 }
 
 void RS_Wall::rotate(const RS_Vector& center, const RS_Vector& angleVector) {
-    updateNeighbors();
     data.startpoint.rotate(center, angleVector);
     data.endpoint.rotate(center, angleVector);
     update();
-    updateNeighbors();
 }
 
 void RS_Wall::scale(const RS_Vector& center, const RS_Vector& factor) {
-    updateNeighbors();
     data.startpoint.scale(center, factor);
     data.endpoint.scale(center, factor);
     data.thickness *= (fabs(factor.x) + fabs(factor.y)) / 2.0;
     update();
-    updateNeighbors();
 }
 
 void RS_Wall::mirror(const RS_Vector& axisPoint1, const RS_Vector& axisPoint2) {
-    updateNeighbors();
     data.startpoint.mirror(axisPoint1, axisPoint2);
     data.endpoint.mirror(axisPoint1, axisPoint2);
     update();
-    updateNeighbors();
 }
 
 void RS_Wall::stretch(const RS_Vector& firstCorner,
@@ -505,7 +464,6 @@ void RS_Wall::stretch(const RS_Vector& firstCorner,
         getMax().isInWindow(firstCorner, secondCorner)) {
         move(offset);
     } else {
-        updateNeighbors();
         if (data.startpoint.isInWindow(firstCorner, secondCorner)) {
             data.startpoint.move(offset);
         }
@@ -513,22 +471,16 @@ void RS_Wall::stretch(const RS_Vector& firstCorner,
             data.endpoint.move(offset);
         }
         update();
-        updateNeighbors();
     }
 }
 
 void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
-    RS_DEBUG->print("silas - moveref");
     if (ref.distanceTo(data.startpoint) < 1.0e-4) {
-        updateNeighbors();
         data.startpoint += offset;
         update();
-        updateNeighbors();
     } else if (ref.distanceTo(data.endpoint) < 1.0e-4) {
-        updateNeighbors();
         data.endpoint += offset;
         update();
-        updateNeighbors();
     } else {
         // Check if the ref matches an opening grip — slide along wall
         RS_Vector wallDir = data.endpoint - data.startpoint;

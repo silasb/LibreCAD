@@ -46,6 +46,7 @@
 #include "rs_layer.h"
 #include "rs_line.h"
 #include "rs_solid.h"
+#include "rs_wall.h"
 
 namespace {
 
@@ -1719,6 +1720,14 @@ void RS_EntityContainer::move(const RS_Vector& offset) {
     for(auto* e: entities){
         e->move(offset);
         adjustBorders(e);
+    }
+    // Re-update walls now that all siblings have moved to their new positions
+    for(auto* e: entities){
+        if (e && e->rtti() == RS2::EntityWall && !e->isUndone()) {
+            bool wasSelected = e->isSelected();
+            e->update();
+            if (wasSelected) e->setSelected(true);
+        }
     }
     if (autoUpdateBorders)
         calculateBorders();
