@@ -23,6 +23,7 @@
 **
 **********************************************************************/
 
+#include <cmath>
 #include <iostream>
 #include "rs_wallopening.h"
 #include "rs_wall.h"
@@ -66,4 +67,121 @@ RS_Vector RS_WallOpening::getGripPoint() const {
     if (wallLength < RS_TOLERANCE) return RS_Vector(false);
 
     return wallStart + wallDir * (openingData.positionAlongWall / wallLength);
+}
+
+RS_Vector RS_WallOpening::getNearestEndpoint(const RS_Vector& coord,
+                                             double* dist) const {
+    RS_EntityContainer* parentEntity = getParent();
+    if (!parentEntity || parentEntity->rtti() != RS2::EntityWall)
+        return RS_Vector(false);
+
+    RS_Wall* wall = static_cast<RS_Wall*>(parentEntity);
+    RS_Vector wallDir = wall->getEndpoint() - wall->getStartpoint();
+    double wallLength = wallDir.magnitude();
+    if (wallLength < RS_TOLERANCE) return RS_Vector(false);
+
+    RS_Vector wallUnit = wallDir / wallLength;
+    double halfW = openingData.width / 2.0;
+    RS_Vector edgeA = wall->getStartpoint() + wallUnit * (openingData.positionAlongWall - halfW);
+    RS_Vector edgeB = wall->getStartpoint() + wallUnit * (openingData.positionAlongWall + halfW);
+
+    double distA = (edgeA - coord).squared();
+    double distB = (edgeB - coord).squared();
+    if (dist)
+        *dist = std::sqrt(std::min(distA, distB));
+    return (distA < distB) ? edgeA : edgeB;
+}
+
+RS_Vector RS_WallOpening::getNearestMiddle(const RS_Vector& coord,
+                                           double* dist,
+                                           int /*middlePoints*/) const {
+    RS_Vector gp = getGripPoint();
+    if (dist && gp.valid)
+        *dist = gp.distanceTo(coord);
+    return gp;
+}
+
+RS_Vector RS_WallOpening::getNearestCenter(const RS_Vector& coord,
+                                           double* dist) const {
+    RS_Vector gp = getGripPoint();
+    if (dist && gp.valid)
+        *dist = gp.distanceTo(coord);
+    return gp;
+}
+
+RS_Vector RS_WallOpening::getNearestPointOnEntity(const RS_Vector& coord,
+                                                  bool onEntity,
+                                                  double* dist,
+                                                  RS_Entity** entity) const {
+    if (entity)
+        *entity = const_cast<RS_WallOpening*>(this);
+
+    RS_EntityContainer* parentEntity = getParent();
+    if (!parentEntity || parentEntity->rtti() != RS2::EntityWall) {
+        if (dist) *dist = RS_MAXDOUBLE;
+        return RS_Vector(false);
+    }
+
+    RS_Wall* wall = static_cast<RS_Wall*>(parentEntity);
+    RS_Vector wallDir = wall->getEndpoint() - wall->getStartpoint();
+    double wallLength = wallDir.magnitude();
+    if (wallLength < RS_TOLERANCE) {
+        if (dist) *dist = RS_MAXDOUBLE;
+        return RS_Vector(false);
+    }
+
+    RS_Vector wallUnit = wallDir / wallLength;
+    double halfW = openingData.width / 2.0;
+    RS_Vector edgeA = wall->getStartpoint() + wallUnit * (openingData.positionAlongWall - halfW);
+    RS_Vector edgeB = wall->getStartpoint() + wallUnit * (openingData.positionAlongWall + halfW);
+
+    // Project coord onto the segment edgeA-edgeB
+    RS_Vector segDir = edgeB - edgeA;
+    RS_Vector vpc = coord - edgeA;
+    double a = segDir.squared();
+    if (a < RS_TOLERANCE * RS_TOLERANCE) {
+        RS_Vector mid = (edgeA + edgeB) / 2.0;
+        if (dist) *dist = mid.distanceTo(coord);
+        return mid;
+    }
+
+    double t = RS_Vector::dotP(vpc, segDir) / a;
+    if (onEntity) {
+        if (t < 0.0) t = 0.0;
+        if (t > 1.0) t = 1.0;
+    }
+
+    RS_Vector ret = edgeA + segDir * t;
+    if (dist)
+        *dist = ret.distanceTo(coord);
+    return ret;
+}
+
+RS_Vector RS_WallOpening::getNearestDist(double distance,
+                                         const RS_Vector& coord,
+                                         double* dist) const {
+    RS_EntityContainer* parentEntity = getParent();
+    if (!parentEntity || parentEntity->rtti() != RS2::EntityWall)
+        return RS_Vector(false);
+
+    RS_Wall* wall = static_cast<RS_Wall*>(parentEntity);
+    RS_Vector wallDir = wall->getEndpoint() - wall->getStartpoint();
+    double wallLength = wallDir.magnitude();
+    if (wallLength < RS_TOLERANCE) return RS_Vector(false);
+
+    RS_Vector wallUnit = wallDir / wallLength;
+    double halfW = openingData.width / 2.0;
+    RS_Vector edgeA = wall->getStartpoint() + wallUnit * (openingData.positionAlongWall - halfW);
+    RS_Vector edgeB = wall->getStartpoint() + wallUnit * (openingData.positionAlongWall + halfW);
+
+    RS_Vector dv = wallUnit * distance;
+    RS_Vector ret;
+    if ((coord - edgeA).squared() < (coord - edgeB).squared())
+        ret = edgeA + dv;
+    else
+        ret = edgeB - dv;
+
+    if (dist)
+        *dist = coord.distanceTo(ret);
+    return ret;
 }

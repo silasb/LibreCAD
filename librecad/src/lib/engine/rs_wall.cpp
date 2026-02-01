@@ -507,6 +507,92 @@ void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
     }
 }
 
+RS_Vector RS_Wall::getNearestEndpoint(const RS_Vector& coord,
+                                      double* dist) const {
+    double dist1 = (data.startpoint - coord).squared();
+    double dist2 = (data.endpoint - coord).squared();
+    if (dist)
+        *dist = std::sqrt(std::min(dist1, dist2));
+    return (dist1 < dist2) ? data.startpoint : data.endpoint;
+}
+
+RS_Vector RS_Wall::getNearestMiddle(const RS_Vector& coord,
+                                    double* dist,
+                                    int middlePoints) const {
+    RS_Vector dir = data.endpoint - data.startpoint;
+    double l = dir.magnitude();
+    if (l <= RS_TOLERANCE) {
+        RS_Vector mid = (data.startpoint + data.endpoint) / 2.0;
+        if (dist) *dist = mid.distanceTo(coord);
+        return mid;
+    }
+
+    RS_Vector nearest = getNearestPointOnEntity(coord, true);
+    int counts = middlePoints + 1;
+    int i = static_cast<int>(nearest.distanceTo(data.startpoint) / l * counts + 0.5);
+    if (!i) i++;
+    if (i == counts) i--;
+    RS_Vector ret = data.startpoint + dir * (double(i) / double(counts));
+    if (dist)
+        *dist = ret.distanceTo(coord);
+    return ret;
+}
+
+RS_Vector RS_Wall::getNearestCenter(const RS_Vector& coord,
+                                    double* dist) const {
+    RS_Vector mid = (data.startpoint + data.endpoint) / 2.0;
+    if (dist)
+        *dist = mid.distanceTo(coord);
+    return mid;
+}
+
+RS_Vector RS_Wall::getNearestPointOnEntity(const RS_Vector& coord,
+                                           bool onEntity,
+                                           double* dist,
+                                           RS_Entity** entity) const {
+    if (entity)
+        *entity = const_cast<RS_Wall*>(this);
+
+    RS_Vector direction = data.endpoint - data.startpoint;
+    RS_Vector vpc = coord - data.startpoint;
+    double a = direction.squared();
+
+    if (a < RS_TOLERANCE * RS_TOLERANCE) {
+        RS_Vector mid = (data.startpoint + data.endpoint) / 2.0;
+        if (dist) *dist = mid.distanceTo(coord);
+        return mid;
+    }
+
+    double t = RS_Vector::dotP(vpc, direction) / a;
+    if (onEntity) {
+        if (t < 0.0) t = 0.0;
+        if (t > 1.0) t = 1.0;
+    }
+
+    RS_Vector ret = data.startpoint + direction * t;
+    if (dist)
+        *dist = ret.distanceTo(coord);
+    return ret;
+}
+
+RS_Vector RS_Wall::getNearestDist(double distance,
+                                  const RS_Vector& coord,
+                                  double* dist) const {
+    RS_Vector direction = data.endpoint - data.startpoint;
+    double angle = direction.angle();
+    RS_Vector dv = RS_Vector::polar(distance, angle);
+
+    RS_Vector ret;
+    if ((coord - data.startpoint).squared() < (coord - data.endpoint).squared())
+        ret = data.startpoint + dv;
+    else
+        ret = data.endpoint - dv;
+
+    if (dist)
+        *dist = coord.distanceTo(ret);
+    return ret;
+}
+
 std::ostream& operator << (std::ostream& os, const RS_Wall& w) {
     os << " Wall: " << w.data << "\n";
     return os;

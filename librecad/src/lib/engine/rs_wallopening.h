@@ -83,6 +83,21 @@ public:
     /** Returns the grip point on the wall centerline at the opening position. */
     RS_Vector getGripPoint() const;
 
+    RS_Vector getNearestEndpoint(const RS_Vector& coord,
+                                 double* dist = nullptr) const override;
+    RS_Vector getNearestMiddle(const RS_Vector& coord,
+                               double* dist = nullptr,
+                               int middlePoints = 1) const override;
+    RS_Vector getNearestCenter(const RS_Vector& coord,
+                               double* dist = nullptr) const override;
+    RS_Vector getNearestPointOnEntity(const RS_Vector& coord,
+                                      bool onEntity = true,
+                                      double* dist = nullptr,
+                                      RS_Entity** entity = nullptr) const override;
+    RS_Vector getNearestDist(double distance,
+                             const RS_Vector& coord,
+                             double* dist = nullptr) const override;
+
 protected:
     RS_WallOpeningData openingData;
 };
