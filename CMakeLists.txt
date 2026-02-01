@@ -225,6 +225,8 @@ librecad/src/lib/engine/rs_wall.cpp
 librecad/src/lib/engine/rs_wallopening.cpp
 librecad/src/lib/engine/rs_door.cpp
 librecad/src/lib/engine/rs_window.cpp
+librecad/src/lib/engine/rs_ttext.cpp
+librecad/src/lib/engine/lc_ttfutils.cpp
 librecad/src/lib/engine/rs_graphic.cpp
 librecad/src/lib/engine/rs_xref.cpp
 librecad/src/lib/engine/rs_units.cpp
@@ -365,6 +367,7 @@ librecad/src/ui/forms/qg_dlgline.cpp
 librecad/src/ui/forms/qg_dlgwall.cpp
 librecad/src/ui/forms/qg_dlgdoor.cpp
 librecad/src/ui/forms/qg_dlgwindow.cpp
+librecad/src/ui/forms/qg_dlgttext.cpp
 librecad/src/ui/forms/qg_dlgmtext.cpp
 librecad/src/ui/forms/qg_dlgoptionsdrawing.cpp
 librecad/src/ui/forms/qg_dlgoptionsgeneral.cpp
@@ -536,6 +539,7 @@ librecad/src/actions/rs_actiondimlinear.cpp
 librecad/src/actions/rs_actiondrawwall.cpp
 librecad/src/actions/rs_actiondrawdoor.cpp
 librecad/src/actions/rs_actiondrawwindow.cpp
+librecad/src/actions/rs_actiondrawttext.cpp
 librecad/src/actions/rs_actiondrawarc.cpp
 librecad/src/actions/rs_actiondrawcirclecr.cpp
 librecad/src/actions/rs_actiondrawcircleinscribe.cpp
@@ -786,6 +790,7 @@ librecad/src/ui/forms/qg_dlgline.ui
 librecad/src/ui/forms/qg_dlgwall.ui
 librecad/src/ui/forms/qg_dlgdoor.ui
 librecad/src/ui/forms/qg_dlgwindow.ui
+librecad/src/ui/forms/qg_dlgttext.ui
 librecad/src/ui/forms/qg_dlgmtext.ui
 librecad/src/ui/forms/qg_dlgoptionsdrawing.ui
 librecad/src/ui/forms/qg_dlgoptionsgeneral.ui
@@ -962,20 +967,20 @@ librecad/res/ui/ui.qrc
 licenses/licenses.qrc
 )
 qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+find_package(Freetype REQUIRED)
 add_executable(librecad
 	${UI_HEADERS}
 	${SOURCES}
         ${QRC_FILES}
 	${QM_FILES}
  )
-target_link_libraries(librecad PRIVATE Qt5::Core Qt5::Widgets Qt5::Gui Qt5::PrintSupport Qt5::Svg Qt5::Network)
+target_include_directories(librecad PRIVATE ${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(librecad PRIVATE Qt5::Core Qt5::Widgets Qt5::Gui Qt5::PrintSupport Qt5::Svg Qt5::Network ${FREETYPE_LIBRARIES})
 set_target_properties(librecad PROPERTIES
 	WIN32_EXECUTABLE ON
 	MACOSX_BUNDLE ON
    AUTOUIC_OPTIONS "--connections string")
 set_property(TARGET librecad PROPERTY AUTOUIC_OPTIONS --connections string)
-
-find_package(Freetype REQUIRED)
 
 add_executable(ttf2lff
 	tools/ttf2lff/main.cpp

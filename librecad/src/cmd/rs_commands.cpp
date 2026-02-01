@@ -840,6 +840,13 @@ RS_Commands::RS_Commands() {
                 {"txt", QObject::tr("txt", "draw text")}},
             RS2::ActionDrawText
         },
+        // draw ttext
+        {
+            {{"ttext", QObject::tr("ttext", "draw ttext")}},
+            {{"ttx", QObject::tr("ttx", "draw ttext")},
+                {"ttxt", QObject::tr("ttxt", "draw ttext")}},
+            RS2::ActionDrawTText
+        },
         // draw hatch
         {
             {{"hatch", QObject::tr("hatch", "draw hatch")}},

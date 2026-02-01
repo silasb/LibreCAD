@@ -53,6 +53,7 @@ class RS_MText;
 class RS_Painter;
 class RS_Solid;
 class RS_Text;
+class RS_TText;
 class RS_Vector;
 
 struct RS_ArcData;
@@ -358,6 +359,8 @@ public:
      * @param entity Pointer to the text entity.
      */
     virtual bool requestTextDialog(RS_Text* text) = 0;
+
+    virtual bool requestTTextDialog(RS_TText* ttext) = 0;
 
     /**
      * This virtual method must be overwritten and must present

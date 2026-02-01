@@ -163,7 +163,8 @@ namespace RS2 {
         EntityOverlayLine,
         EntityWall,         /**< AEC Wall */
         EntityDoor,         /**< AEC Door */
-        EntityWindow        /**< AEC Window */
+        EntityWindow,       /**< AEC Window */
+        EntityTText         /**< TrueType Text */
     };
 
 
@@ -309,6 +310,7 @@ namespace RS2 {
         ActionDrawSliceDivideCircle,
         ActionDrawLinePoints,
         ActionDrawStar,
+        ActionDrawTText,
 
         ActionPolylineAdd,
         ActionPolylineAppend,

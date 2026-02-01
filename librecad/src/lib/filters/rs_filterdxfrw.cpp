@@ -53,6 +53,7 @@
 #include "rs_system.h"
 #include "rs_text.h"
 #include "rs_wall.h"
+#include "rs_ttext.h"
 #include "rs_wallopening.h"
 #include "rs_door.h"
 #include "rs_window.h"
@@ -434,6 +435,31 @@ void RS_FilterDXFRW::addLine(const DRW_Line& data) {
             } else if (subtype == 0) {
                 // Compat geometry — skip (wall will regenerate it)
                 return;
+            }
+        }
+
+        // Check for TText XDATA
+        bool isTText = false;
+        int ttSubtype = -1;
+        for (size_t i = 0; i < data.extData.size(); ++i) {
+            auto& v = data.extData[i];
+            if (v->code() == 1001 && v->type() == DRW_Variant::STRING
+                && *v->content.s == "LibreCAD_TText") {
+                isTText = true;
+                if (i + 1 < data.extData.size()
+                    && data.extData[i+1]->code() == 1070
+                    && data.extData[i+1]->type() == DRW_Variant::INTEGER) {
+                    ttSubtype = data.extData[i+1]->content.i;
+                }
+                break;
+            }
+        }
+        if (isTText) {
+            if (ttSubtype == 10) {
+                addTText(data);
+                return;
+            } else if (ttSubtype == 0) {
+                return;  // compat geometry
             }
         }
     }
@@ -2213,6 +2239,9 @@ void RS_FilterDXFRW::writeEntity(RS_Entity* e){
     case RS2::EntityImage:
         writeImage((RS_Image*)e);
         break;
+    case RS2::EntityTText:
+        writeTText((RS_TText*)e);
+        break;
     case RS2::EntityWall:
         writeWall((RS_Wall*)e);
         break;
@@ -3281,6 +3310,93 @@ void RS_FilterDXFRW::addAECWall(const DRW_Line& data) {
 
     if (currentContainer) currentContainer->addEntity(wall);
     RS_DEBUG->print("RS_FilterDXFRW::addAECWall: OK");
+}
+
+void RS_FilterDXFRW::writeTText(RS_TText* t) {
+    // Write a DRW_Line at the insertion point with XDATA carrying all TText parameters
+    DRW_Line marker;
+    getEntityAttributes(&marker, t);
+    marker.basePoint.x = t->getInsertionPoint().x;
+    marker.basePoint.y = t->getInsertionPoint().y;
+    marker.secPoint.x = t->getInsertionPoint().x;
+    marker.secPoint.y = t->getInsertionPoint().y;
+
+    // XDATA
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1001, std::string("LibreCAD_TText")));
+    // 1070: subtype = 10 (ttext master)
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1070, 10));
+    // 1000: text content (escape newlines — DXF strings cannot contain literal newlines)
+    QString escapedText = t->getText();
+    escapedText.replace("\\", "\\\\");
+    escapedText.replace("\n", "\\n");
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1000, escapedText.toStdString()));
+    // 1000: font path
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1000, t->getFontPath().toStdString()));
+    // 1040: height
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1040, t->getHeight()));
+    // 1040: angle
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1040, t->getAngle()));
+    // 1040: letter spacing
+    marker.extData.push_back(std::make_shared<DRW_Variant>(1040, t->getLetterSpacing()));
+
+    dxfW->writeLine(&marker);
+    // No compat geometry written — TText regenerates via update() on load
+}
+
+void RS_FilterDXFRW::addTText(const DRW_Line& data) {
+    RS_DEBUG->print("RS_FilterDXFRW::addTText");
+
+    RS_Vector insertionPoint(data.basePoint.x, data.basePoint.y);
+
+    // Parse XDATA: skip past 1001 "LibreCAD_TText" and 1070 subtype(10)
+    size_t idx = 0;
+    while (idx < data.extData.size()) {
+        auto& v = data.extData[idx];
+        if (v->code() == 1001 && v->type() == DRW_Variant::STRING
+            && *v->content.s == "LibreCAD_TText") {
+            idx += 2;  // skip 1001 + 1070 subtype
+            break;
+        }
+        idx++;
+    }
+
+    QString text, fontPath;
+    double height = 10.0, angle = 0.0, letterSpacing = 1.0;
+
+    // 1000: text (unescape newlines)
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1000) {
+        text = QString::fromStdString(*data.extData[idx]->content.s);
+        text.replace("\\n", "\n");
+        text.replace("\\\\", "\\");
+        idx++;
+    }
+    // 1000: fontPath
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1000) {
+        fontPath = QString::fromStdString(*data.extData[idx]->content.s);
+        idx++;
+    }
+    // 1040: height
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+        height = data.extData[idx]->content.d;
+        idx++;
+    }
+    // 1040: angle
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+        angle = data.extData[idx]->content.d;
+        idx++;
+    }
+    // 1040: letterSpacing
+    if (idx < data.extData.size() && data.extData[idx]->code() == 1040) {
+        letterSpacing = data.extData[idx]->content.d;
+        idx++;
+    }
+
+    RS_TTextData td(text, fontPath, insertionPoint, height, angle, letterSpacing);
+    RS_TText* ttext = new RS_TText(currentContainer, td);
+    setEntityAttributes(ttext, &data);
+
+    if (currentContainer) currentContainer->addEntity(ttext);
+    RS_DEBUG->print("RS_FilterDXFRW::addTText: OK");
 }
 
 /*void RS_FilterDXFRW::writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,

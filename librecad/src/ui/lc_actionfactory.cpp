@@ -616,6 +616,12 @@ void LC_ActionFactory::fillActionContainer(QMap<QString, QAction*>& a_map, LC_Ac
     action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawText).first());
     a_map["DrawText"] = action;
 
+    action = new QAction(tr("TrueType Text"), agm->other);
+    connect(action, SIGNAL(triggered()),
+    action_handler, SLOT(slotDrawTText()));
+    action->setObjectName(RS_COMMANDS->aliasesForAction(RS2::ActionDrawTText).first());
+    a_map["DrawTText"] = action;
+
     action = new QAction(tr("&Hatch"), agm->other);
     action->setIcon(QIcon(":/icons/hatch.svg"));
     connect(action, SIGNAL(triggered()),

@@ -170,6 +170,7 @@ LC_WidgetFactory::LC_WidgetFactory(QC_ApplicationWindow* main_win,
             << a_map["DimLeader"]
             << a_map["DrawText"]
             << a_map["DrawMText"]
+            << a_map["DrawTText"]
             << a_map["DrawHatch"]
             << a_map["DrawImage"];
 

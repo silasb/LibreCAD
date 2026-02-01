@@ -189,6 +189,7 @@ public slots:
 	void slotDrawWall();
 	void slotDrawDoor();
 	void slotDrawWindow();
+	void slotDrawTText();
 
 	void slotDimAligned();
 	void slotDimLinear();

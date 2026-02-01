@@ -66,6 +66,7 @@ public:
 	bool requestModifyEntityDialog(RS_Entity*) override {return false;}
 	bool requestMTextDialog(RS_MText*) override {return false;}
 	bool requestTextDialog(RS_Text*) override {return false;}
+	bool requestTTextDialog(RS_TText*) override {return false;}
 	bool requestHatchDialog(RS_Hatch*) override {return false;}
 	void requestOptionsGeneralDialog() override {}
 	void requestOptionsDrawingDialog(RS_Graphic&) override {}

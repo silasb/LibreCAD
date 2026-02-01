@@ -87,9 +87,11 @@ DEFINES += LC_VERSION=\"$$LC_VERSION\"
 # Additional libraries to load
 LIBS += -L../../generated/lib  \
     -ldxfrw \
-    -ljwwlib
+    -ljwwlib \
+    -lfreetype
 
 INCLUDEPATH += \
+    /usr/include/freetype2 \
     ../../libraries/libdxfrw/src \
     ../../libraries/jwwlib/src \
     cmd \
@@ -169,6 +171,8 @@ HEADERS += \
     lib/engine/rs_dimension.h \
     lib/engine/rs_dimlinear.h \
     lib/engine/rs_dimradial.h \
+    lib/engine/rs_ttext.h \
+    lib/engine/lc_ttfutils.h \
     lib/engine/rs_wall.h \
     lib/engine/rs_wallopening.h \
     lib/engine/rs_door.h \
@@ -329,6 +333,8 @@ SOURCES += \
     lib/engine/rs_dimension.cpp \
     lib/engine/rs_dimlinear.cpp \
     lib/engine/rs_dimradial.cpp \
+    lib/engine/rs_ttext.cpp \
+    lib/engine/lc_ttfutils.cpp \
     lib/engine/rs_wall.cpp \
     lib/engine/rs_wallopening.cpp \
     lib/engine/rs_door.cpp \
@@ -465,6 +471,7 @@ HEADERS += actions/rs_actionblocksadd.h \
     actions/rs_actiondimleader.h \
     actions/rs_actiondimlinear.h \
     actions/rs_actiondimradial.h \
+    actions/rs_actiondrawttext.h \
     actions/rs_actiondrawwall.h \
     actions/rs_actiondrawdoor.h \
     actions/rs_actiondrawwindow.h \
@@ -608,6 +615,7 @@ SOURCES += actions/rs_actionblocksadd.cpp \
     actions/rs_actiondimleader.cpp \
     actions/rs_actiondimlinear.cpp \
     actions/rs_actiondimradial.cpp \
+    actions/rs_actiondrawttext.cpp \
     actions/rs_actiondrawwall.cpp \
     actions/rs_actiondrawdoor.cpp \
     actions/rs_actiondrawwindow.cpp \
@@ -794,6 +802,7 @@ HEADERS += ui/lc_actionfactory.h \
     ui/forms/qg_dlgscale.h \
     ui/forms/qg_dlgspline.h \
     ui/forms/qg_dlgtext.h \
+    ui/forms/qg_dlgttext.h \
     ui/forms/qg_dlgwall.h \
     ui/forms/qg_dlgdoor.h \
     ui/forms/qg_dlgwindow.h \
@@ -901,6 +910,7 @@ SOURCES += ui/lc_actionfactory.cpp \
     ui/forms/qg_dlgscale.cpp \
     ui/forms/qg_dlgspline.cpp \
     ui/forms/qg_dlgtext.cpp \
+    ui/forms/qg_dlgttext.cpp \
     ui/forms/qg_dlgwall.cpp \
     ui/forms/qg_dlgdoor.cpp \
     ui/forms/qg_dlgwindow.cpp \
@@ -1005,6 +1015,7 @@ FORMS = ui/forms/qg_commandwidget.ui \
     ui/forms/qg_dlgscale.ui \
     ui/forms/qg_dlgspline.ui \
     ui/forms/qg_dlgtext.ui \
+    ui/forms/qg_dlgttext.ui \
     ui/forms/qg_dlgwall.ui \
     ui/forms/qg_dlgdoor.ui \
     ui/forms/qg_dlgwindow.ui \

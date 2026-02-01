@@ -63,6 +63,8 @@
 #include "qg_dlgwall.h"
 #include "qg_dlgdoor.h"
 #include "qg_dlgwindow.h"
+#include "qg_dlgttext.h"
+#include "rs_ttext.h"
 #include "rs_wall.h"
 #include "rs_door.h"
 #include "rs_window.h"
@@ -1645,6 +1647,16 @@ bool QG_DialogFactory::requestModifyEntityDialog(RS_Entity* entity) {
     }
         break;
 
+    case RS2::EntityTText: {
+        QG_DlgTText dlg(parent);
+        dlg.setTText(*static_cast<RS_TText*>(entity));
+        if (dlg.exec()) {
+            dlg.updateTText();
+            ret = true;
+        }
+    }
+        break;
+
     default:
         break;
     }
@@ -1703,6 +1715,20 @@ bool QG_DialogFactory::requestTextDialog(RS_Text* text) {
     dlg.setText(*text, true);
     if (dlg.exec()) {
         dlg.updateText();
+        return true;
+    }
+
+    return false;
+}
+
+
+bool QG_DialogFactory::requestTTextDialog(RS_TText* ttext) {
+    if (!ttext) return false;
+
+    QG_DlgTText dlg(parent);
+    dlg.setTText(*ttext);
+    if (dlg.exec()) {
+        dlg.updateTText();
         return true;
     }
 

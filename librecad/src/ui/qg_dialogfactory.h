@@ -217,6 +217,7 @@ public:
 	void requestModifyOffsetOptions(double& dist, bool on) override;
 	bool requestMTextDialog(RS_MText* text) override;
 	bool requestTextDialog(RS_Text* text) override;
+	bool requestTTextDialog(RS_TText* ttext) override;
 	bool requestHatchDialog(RS_Hatch* hatch) override;
 	void requestOptionsGeneralDialog() override;
 	void requestOptionsDrawingDialog(RS_Graphic& graphic) override;

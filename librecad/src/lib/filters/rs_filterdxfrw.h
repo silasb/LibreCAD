@@ -51,6 +51,7 @@ class RS_Image;
 class RS_Leader;
 class RS_Polyline;
 class RS_Wall;
+class RS_TText;
 class DL_WriterA;
 
 /**
@@ -163,6 +164,8 @@ public:
     void writePolyline(RS_Polyline* p);
     void writeWall(RS_Wall* w);
     void addAECWall(const DRW_Line& data);
+    void writeTText(RS_TText* t);
+    void addTText(const DRW_Line& data);
 
 /*	void writeEntityContainer(DL_WriterA& dw, RS_EntityContainer* con,
                 const DRW_Entity& attrib);
