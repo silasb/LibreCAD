@@ -518,6 +518,48 @@ void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
             }
         }
         update();
+    } else if (ref.distanceTo((data.startpoint + data.endpoint) / 2.0) < 1.0e-4) {
+        // Center grip — translate the wall and drag joined neighbors' shared endpoints
+        RS_Vector oldStart = data.startpoint;
+        RS_Vector oldEnd = data.endpoint;
+
+        data.startpoint += offset;
+        data.endpoint += offset;
+
+        // Move shared endpoints of neighbors so they stay joined
+        RS_EntityContainer* parentContainer = getParent();
+        if (parentContainer) {
+            for (auto e : *parentContainer) {
+                if (!e || e == this) continue;
+                if (e->rtti() != RS2::EntityWall) continue;
+                if (e->isUndone()) continue;
+
+                RS_Wall* other = static_cast<RS_Wall*>(e);
+                if (getLayer() != other->getLayer()) continue;
+
+                RS_WallData od = other->getData();
+                bool changed = false;
+
+                if (od.startpoint.distanceTo(oldStart) < RS_TOLERANCE ||
+                    od.startpoint.distanceTo(oldEnd) < RS_TOLERANCE) {
+                    od.startpoint += offset;
+                    changed = true;
+                }
+                if (od.endpoint.distanceTo(oldStart) < RS_TOLERANCE ||
+                    od.endpoint.distanceTo(oldEnd) < RS_TOLERANCE) {
+                    od.endpoint += offset;
+                    changed = true;
+                }
+                if (changed) {
+                    other->setData(od);
+                    other->update();
+                    other->updateNeighbors();
+                }
+            }
+        }
+
+        update();
+        updateNeighbors();
     } else {
         // Check if the ref matches an opening grip — slide along wall
         RS_Vector wallDir = data.endpoint - data.startpoint;
