@@ -48,7 +48,7 @@
 #include "rs_text.h"
 #include "rs_units.h"
 #include "rs_wall.h"
-#include "rs_door.h"
+#include "rs_wallopening.h"
 #include "lc_splinepoints.h"
 #include "lc_undosection.h"
 
@@ -265,17 +265,17 @@ void RS_Modification::remove() {
     LC_UndoSection undo( document);
     bool invalidContainer {true};
 
-    // Also check for selected doors inside walls
+    // Also check for selected openings (doors/windows) inside walls
     QSet<RS_Wall*> wallsToUpdate;
     for (auto e : *container) {
         if (!e) continue;
         if (e->rtti() == RS2::EntityWall) {
             RS_Wall* wall = static_cast<RS_Wall*>(e);
-            for (auto door : wall->getDoors()) {
-                if (door->isSelected()) {
-                    door->setSelected(false);
-                    door->changeUndoState();
-                    undo.addUndoable(door);
+            for (auto opening : wall->getOpenings()) {
+                if (opening->isSelected()) {
+                    opening->setSelected(false);
+                    opening->changeUndoState();
+                    undo.addUndoable(opening);
                     wallsToUpdate.insert(wall);
                     invalidContainer = false;
                 }
@@ -296,7 +296,7 @@ void RS_Modification::remove() {
         RS_DEBUG->print(RS_Debug::D_WARNING, "RS_Modification::remove: no valid container is selected");
     }
 
-    // Regenerate walls that had doors removed
+    // Regenerate walls that had openings removed
     for (auto wall : wallsToUpdate) {
         wall->update();
     }

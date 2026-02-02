@@ -19,8 +19,7 @@ SUBDIRS     = \
         picfile \
         plotequation \
         pointstocsv \
-        gear \
-        wall
+        gear
 
 TRANSLATIONS = ./ts/plugins_ar.ts \
     ./ts/plugins_ca.ts \

@@ -32,7 +32,7 @@
 #include "rs_graphicview.h"
 #include "rs_debug.h"
 #include "rs_wall.h"
-#include "rs_door.h"
+#include "rs_wallopening.h"
 
 
 
@@ -54,10 +54,10 @@ void RS_ActionModifyEntity::setDisplaySelected(bool highlighted)
 
 void RS_ActionModifyEntity::trigger() {
     if (en != nullptr) {
-        // Doors are children of walls — modify in-place rather than
-        // using the clone-and-replace pattern which would break the
-        // parent–child relationship.
-        if (en->rtti() == RS2::EntityDoor) {
+        // Wall openings (doors/windows) are children of walls — modify
+        // in-place rather than using the clone-and-replace pattern which
+        // would break the parent–child relationship.
+        if (en->rtti() == RS2::EntityDoor || en->rtti() == RS2::EntityWindow) {
             if (RS_DIALOGFACTORY->requestModifyEntityDialog(en)) {
                 graphicView->redraw(RS2::RedrawDrawing);
             }

@@ -1028,18 +1028,18 @@ RS_Commands::RS_Commands() {
 
         // aec
         {
-            {{"drawwall", QObject::tr("drawwall", "drawwall")}},
+            {{"drawwall", QObject::tr("drawwall", "aec - drawwall")}},
             {{"dw", QObject::tr("dw", "drawwall")}},
             RS2::ActionDrawWall
         },
         {
-            {{"drawdoor", QObject::tr("drawdoor", "drawdoor")}},
-            {{"dd", QObject::tr("dd", "drawdoor")}},
+            {{"drawdoor", QObject::tr("drawdoor", "aec - drawdoor")}},
+            {{"ddo", QObject::tr("ddo", "aec - drawdoor")}},
             RS2::ActionDrawDoor
         },
         {
-            {{"drawwindow", QObject::tr("drawwindow", "drawwindow")}},
-            {{"dwi", QObject::tr("dwi", "drawwindow")}},
+            {{"drawwindow", QObject::tr("drawwindow", "aec - drawwindow")}},
+            {{"dwi", QObject::tr("dwi", "aec - drawwindow")}},
             RS2::ActionDrawWindow
         }
     };

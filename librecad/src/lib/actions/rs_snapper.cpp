@@ -33,7 +33,7 @@
 
 #include "rs_circle.h"
 #include "rs_wall.h"
-#include "rs_door.h"
+#include "rs_wallopening.h"
 #include "rs_coordinateevent.h"
 #include "rs_debug.h"
 #include "rs_dialogfactory.h"
@@ -655,22 +655,22 @@ RS_Entity* RS_Snapper::catchEntity(const RS_Vector& pos,
     }
 
     if (entity != nullptr && dist <= getCatchDistance(getSnapRange(), catchEntityGuiRange, graphicView)) {
-        // If a wall was caught, check if a door child is closer to the click
+        // If a wall was caught, check if an opening child (door/window) is closer to the click
         if (entity->rtti() == RS2::EntityWall) {
             RS_Wall* wall = static_cast<RS_Wall*>(entity);
-            auto doors = wall->getDoors();
-            RS_Door* closestDoor = nullptr;
-            double minDoorDist = RS_MAXDOUBLE;
-            for (auto door : doors) {
+            auto openings = wall->getOpenings();
+            RS_WallOpening* closestOpening = nullptr;
+            double minOpeningDist = RS_MAXDOUBLE;
+            for (auto opening : openings) {
                 RS_Entity* tmp = nullptr;
-                double doorDist = door->getDistanceToPoint(pos, &tmp);
-                if (doorDist < minDoorDist) {
-                    minDoorDist = doorDist;
-                    closestDoor = door;
+                double openingDist = opening->getDistanceToPoint(pos, &tmp);
+                if (openingDist < minOpeningDist) {
+                    minOpeningDist = openingDist;
+                    closestOpening = opening;
                 }
             }
-            if (closestDoor && minDoorDist < dist + 1.0e-4) {
-                return closestDoor;
+            if (closestOpening && minOpeningDist < dist + 1.0e-4) {
+                return closestOpening;
             }
         }
 
