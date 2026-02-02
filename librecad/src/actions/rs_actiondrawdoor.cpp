@@ -153,7 +153,7 @@ void RS_ActionDrawDoor::trigger() {
 }
 
 void RS_ActionDrawDoor::mouseMoveEvent(QMouseEvent* e) {
-    RS_Vector mouse = snapFree(e);
+    RS_Vector mouse = snapPoint(e);
 
     switch (getStatus()) {
     case SelectWall: {
@@ -222,14 +222,13 @@ void RS_ActionDrawDoor::mouseMoveEvent(QMouseEvent* e) {
 
 void RS_ActionDrawDoor::mouseReleaseEvent(QMouseEvent* e) {
     if (e->button() == Qt::LeftButton) {
-        RS_Vector mouse = snapFree(e);
-
         switch (getStatus()) {
         case SelectWall: {
-            RS_Wall* wall = findNearestWall(mouse);
+            RS_Vector snap = snapPoint(e);
+            RS_Wall* wall = findNearestWall(snap);
             if (wall) {
                 selectedWall = wall;
-                graphicView->moveRelativeZero(mouse);
+                graphicView->moveRelativeZero(snap);
                 setStatus(SetPosition);
             } else {
                 RS_DIALOGFACTORY->commandMessage(
@@ -239,7 +238,8 @@ void RS_ActionDrawDoor::mouseReleaseEvent(QMouseEvent* e) {
         }
 
         case SetPosition: {
-            graphicView->moveRelativeZero(mouse);
+            RS_Vector snap = snapPoint(e);
+            graphicView->moveRelativeZero(snap);
             trigger();
             break;
         }
