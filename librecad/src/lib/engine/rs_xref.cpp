@@ -1,9 +1,12 @@
 #include "rs_xref.h"
 
+#include <QFileInfo>
+
 #include "rs_graphic.h"
 #include "rs_fileio.h"
 #include "rs_entitycontainer.h"
 #include "rs_debug.h"
+#include "rs_entity.h"
 #include "rs_layer.h"
 
 RS_XRef::RS_XRef(const QString& path, RS_Graphic* host)
@@ -59,10 +62,7 @@ bool RS_XRef::load()
                 // cloned container itself and avoids corrupting the
                 // containment hierarchy.
                 c->setParent(m_holder);
-                // remap layer names to the host graphic so layers resolve to host layers
-                if (e->getLayer()) {
-                    c->setLayer(e->getLayer()->getName());
-                }
+                remapEntityLayers(e, c);
                 m_holder->addEntity(c);
             }
         }
@@ -102,9 +102,7 @@ bool RS_XRef::reload()
             RS_Entity* c = e->clone();
             if (c) {
                 c->setParent(newHolder);
-                if (e->getLayer()) {
-                    c->setLayer(e->getLayer()->getName());
-                }
+                remapEntityLayers(e, c);
                 newHolder->addEntity(c);
             }
         }
@@ -145,4 +143,47 @@ bool RS_XRef::reload()
 
     RS_DEBUG->print("RS_XRef: reloaded %s (entities: %d)", m_path.toLatin1().data(), m_holder->count());
     return true;
+}
+
+QString RS_XRef::prefixedLayerName(const QString& layerName) const
+{
+    QString baseName = QFileInfo(m_path).completeBaseName();
+    return QStringLiteral("xrefs-%1-%2").arg(baseName, layerName);
+}
+
+void RS_XRef::ensureHostLayer(const QString& prefixedName, RS_Layer* srcLayer)
+{
+    if (!m_host || m_host->findLayer(prefixedName))
+        return;
+
+    RS_Layer* nl = new RS_Layer(prefixedName);
+    nl->setPen(srcLayer->getPen());
+    m_host->addLayer(nl);
+}
+
+void RS_XRef::remapEntityLayers(RS_Entity* src, RS_Entity* clone)
+{
+    if (!src || !clone) return;
+
+    // remap the layer on this entity
+    if (src->getLayer()) {
+        QString pName = prefixedLayerName(src->getLayer()->getName());
+        ensureHostLayer(pName, src->getLayer());
+        clone->setLayer(pName);
+    }
+
+    // preserve the pen from the source
+    clone->setPen(src->getPen());
+
+    // recurse into children if this is a container
+    auto* srcContainer = dynamic_cast<RS_EntityContainer*>(src);
+    auto* cloneContainer = dynamic_cast<RS_EntityContainer*>(clone);
+    if (srcContainer && cloneContainer) {
+        const QList<RS_Entity*>& srcChildren = srcContainer->getEntityList();
+        const QList<RS_Entity*>& cloneChildren = cloneContainer->getEntityList();
+        int count = qMin(srcChildren.size(), cloneChildren.size());
+        for (int i = 0; i < count; ++i) {
+            remapEntityLayers(srcChildren.at(i), cloneChildren.at(i));
+        }
+    }
 }

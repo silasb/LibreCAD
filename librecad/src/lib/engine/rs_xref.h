@@ -9,14 +9,18 @@
 
 #include <QString>
 
+class RS_Entity;
 class RS_Graphic;
 class RS_EntityContainer;
+class RS_Layer;
 
 /**
  * Minimal external reference holder (POC).
  * Loads an external DXF/DWG into an internal RS_Graphic and
  * clones its top-level entities into a holder container attached
- * to the host graphic. No transformation or layer overrides yet.
+ * to the host graphic.  Layers from the referenced file are
+ * imported into the host with the prefix  xrefs-<filename>-
+ * so they sort together and don't collide with host layers.
  */
 class RS_XRef {
 public:
@@ -30,6 +34,14 @@ public:
     RS_EntityContainer* holder() const { return m_holder; }
 
 private:
+    /** Return "xrefs-<basename>-<layerName>" for the current path. */
+    QString prefixedLayerName(const QString& layerName) const;
+    /** Ensure a prefixed layer exists in the host, creating it from
+     *  the source layer's pen if necessary. */
+    void ensureHostLayer(const QString& prefixedName, RS_Layer* srcLayer);
+    /** Recursively remap layers and pens on clone to match src. */
+    void remapEntityLayers(RS_Entity* src, RS_Entity* clone);
+
     QString m_path;
     RS_Graphic* m_host = nullptr;
     // referenced document (owned)

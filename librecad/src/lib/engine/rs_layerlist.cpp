@@ -111,6 +111,11 @@ void RS_LayerList::activate(RS_Layer* layer, bool notify) {
         RS_DEBUG->print("RS_LayerList::activate: nullptr");
 }*/
 
+    // Prevent xref layers from becoming the active drawing layer
+    if (layer && layer->getName().startsWith(QLatin1String("xrefs-"))) {
+        return;
+    }
+
     activeLayer = layer;
 
     if (notify) {

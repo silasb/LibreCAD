@@ -44,6 +44,7 @@
 #include "rs_information.h"
 #include "rs_insert.h"
 #include "rs_layer.h"
+#include "rs_layerlist.h"
 #include "rs_line.h"
 #include "rs_solid.h"
 #include "rs_wall.h"
