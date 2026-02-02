@@ -367,11 +367,13 @@ void RS_Wall::computeJoinPoints(const RS_Wall* neighbor,
         return;
     }
 
+    // Wall A offset lines: "left" = +perpA side, "right" = -perpA side
     RS_Vector aLeft1 = data.startpoint + perpA;
     RS_Vector aLeft2 = data.endpoint + perpA;
     RS_Vector aRight1 = data.startpoint - perpA;
     RS_Vector aRight2 = data.endpoint - perpA;
 
+    // Wall B offset lines
     RS_Vector bLeft1 = neighbor->getStartpoint() + perpB;
     RS_Vector bLeft2 = neighbor->getEndpoint() + perpB;
     RS_Vector bRight1 = neighbor->getStartpoint() - perpB;
@@ -390,12 +392,26 @@ void RS_Wall::computeJoinPoints(const RS_Wall* neighbor,
     RS_Vector intRL = lineIntersect(aRight1, aRight2, bLeft1, bLeft2);
     RS_Vector intRR = lineIntersect(aRight1, aRight2, bRight1, bRight2);
 
-    // Always use "same" pairing (A-left∩B-left, A-right∩B-right).
-    // "Cross" pairing causes wall outlines to cross over at the corner
-    // because the two walls disagree on which point is left vs right.
-    if (intLL.valid && intRR.valid) {
-        leftPt = intLL;
-        rightPt = intRR;
+    // Determine pairing based on which end of each wall is at the shared
+    // point.  When both walls have the same end type at the join (both
+    // startpoints or both endpoints), their perpendiculars point in
+    // opposite senses relative to the corner, requiring cross pairing.
+    // When the end types differ (one start, one end), same pairing works.
+    bool sharedIsThisEnd = (sharedPoint.distanceTo(data.endpoint) < RS_TOLERANCE);
+    bool sharedIsNeighborEnd = (sharedPoint.distanceTo(neighbor->getEndpoint()) < RS_TOLERANCE);
+
+    if (sharedIsThisEnd == sharedIsNeighborEnd) {
+        // Same end type (start-start or end-end) → cross pairing
+        if (intLR.valid && intRL.valid) {
+            leftPt = intLR;
+            rightPt = intRL;
+        }
+    } else {
+        // Different end types (start-end or end-start) → same pairing
+        if (intLL.valid && intRR.valid) {
+            leftPt = intLL;
+            rightPt = intRR;
+        }
     }
 }
 
