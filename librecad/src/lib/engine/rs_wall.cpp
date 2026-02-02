@@ -476,10 +476,47 @@ void RS_Wall::stretch(const RS_Vector& firstCorner,
 
 void RS_Wall::moveRef(const RS_Vector& ref, const RS_Vector& offset) {
     if (ref.distanceTo(data.startpoint) < 1.0e-4) {
+        // Moving the startpoint — adjust openings so they stay in world-space
+        RS_Vector oldDir = data.endpoint - data.startpoint;
+        double oldLength = oldDir.magnitude();
         data.startpoint += offset;
+        RS_Vector newDir = data.endpoint - data.startpoint;
+        double newLength = newDir.magnitude();
+        if (oldLength > RS_TOLERANCE && newLength > RS_TOLERANCE) {
+            RS_Vector oldUnit = oldDir / oldLength;
+            // How much the start shifted along the old wall direction
+            double shift = offset.x * oldUnit.x + offset.y * oldUnit.y;
+            for (auto e : entities) {
+                if (!e || e->isUndone()) continue;
+                auto* opening = dynamic_cast<RS_WallOpening*>(e);
+                if (opening) {
+                    double halfW = opening->getWidth() / 2.0;
+                    double newPos = opening->getPositionAlongWall() - shift;
+                    newPos = std::max(halfW, std::min(newLength - halfW, newPos));
+                    opening->setPositionAlongWall(newPos);
+                }
+            }
+        }
         update();
     } else if (ref.distanceTo(data.endpoint) < 1.0e-4) {
         data.endpoint += offset;
+        // Clamp openings if the wall got shorter
+        RS_Vector newDir = data.endpoint - data.startpoint;
+        double newLength = newDir.magnitude();
+        if (newLength > RS_TOLERANCE) {
+            for (auto e : entities) {
+                if (!e || e->isUndone()) continue;
+                auto* opening = dynamic_cast<RS_WallOpening*>(e);
+                if (opening) {
+                    double halfW = opening->getWidth() / 2.0;
+                    double pos = opening->getPositionAlongWall();
+                    if (pos + halfW > newLength) {
+                        pos = std::max(halfW, newLength - halfW);
+                        opening->setPositionAlongWall(pos);
+                    }
+                }
+            }
+        }
         update();
     } else {
         // Check if the ref matches an opening grip — slide along wall
